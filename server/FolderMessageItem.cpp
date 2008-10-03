@@ -45,7 +45,6 @@ FolderMessageItem::FolderMessageItem(EDF *pEDF, FolderMessageItem *pParent, Mess
    init(pTree);
 
    // ExtractMember(pEDF, "topid", &m_lTopID, -1);
-   ExtractMember(pEDF, "subject", &m_pSubject);
 
    EDFFields(pEDF);
 
@@ -57,7 +56,6 @@ FolderMessageItem::FolderMessageItem(DBTable *pTable, FolderMessageItem *pParent
    init(pTree);
 
    // GET_INT_TABLE(7, m_lTopID, -1)
-   GET_BYTES_TABLE(7, m_pSubject, true)
 
    EDFFields(NULL);
 
@@ -69,8 +67,6 @@ FolderMessageItem::~FolderMessageItem()
 {
    STACKTRACE
    // printf("FolderMessageItem::~FolderMessageItem %p(%ld)\n", this, GetID());
-
-   delete m_pSubject;
 }
 
 /* const char *FolderMessageItem::GetClass()
@@ -87,16 +83,6 @@ bool FolderMessageItem::SetTopID(long lTopID)
 {
    SET_INT(m_lTopID, lTopID)
 } */
-
-bytes *FolderMessageItem::GetSubject(bool bCopy)
-{
-   GET_BYTES(m_pSubject)
-}
-
-bool FolderMessageItem::SetSubject(bytes *pSubject)
-{
-   SET_BYTES(m_pSubject, pSubject, UA_SHORTMSG_LEN)
-}
 
 int FolderMessageItem::GetVoteType()
 {
@@ -521,7 +507,7 @@ bool FolderMessageItem::SetVoteUser(long lUserID, int iVoteID, char *szVoteValue
    }
 
    m_pEDF->AddChild("userid", lUserID);
-   
+
    // Putting the users in numerical order to prevent mapping of data for an anonymous own option vote
    m_pEDF->Sort("userid");
 
@@ -692,7 +678,7 @@ bool FolderMessageItem::WriteFields(EDF *pEDF, int iLevel)
    STACKTRACE
    // bytes *pFromName = NULL;
 
-   debug(DEBUGLEVEL_DEBUG, "FolderMessageItem::WriteFields %p %d, %p %p %p\n", pEDF, iLevel, GetParent(), GetTree(), m_pSubject);
+   debug(DEBUGLEVEL_DEBUG, "FolderMessageItem::WriteFields %p %d, %p %p\n", pEDF, iLevel, GetParent(), GetTree());
 
    MessageItem::WriteFields(pEDF, iLevel);
 
@@ -707,11 +693,6 @@ bool FolderMessageItem::WriteFields(EDF *pEDF, int iLevel)
    {
       pEDF->AddChild("topid", m_lTopID);
    } */
-
-   if((mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true || mask(iLevel, MESSAGEITEMWRITE_SUBJECT) == true) && m_pSubject != NULL)
-   {
-      pEDF->AddChild("subject", m_pSubject);
-   }
 
    debug(DEBUGLEVEL_DEBUG, "FolderMessageItem::WriteFields exit true\n");
    return true;
@@ -853,7 +834,6 @@ bool FolderMessageItem::WriteFields(DBTable *pTable, EDF *pEDF)
    MessageItem::WriteFields(pTable, pEDF);
 
    // pTable->SetField(m_lTopID);
-   pTable->SetField(m_pSubject);
 
    return true;
 }
@@ -866,7 +846,6 @@ bool FolderMessageItem::ReadFields(DBTable *pTable)
 
    // topid, subject
    // pTable->BindColumnInt();
-   pTable->BindColumnBytes();
 
    return true;
 }
@@ -886,7 +865,6 @@ void FolderMessageItem::init(MessageTreeItem *pTree)
    // Top level fields
 
    // m_lTopID = -1;
-   m_pSubject = NULL;
 
    // m_pReply = NULL;
    m_lReplyID = -1;
