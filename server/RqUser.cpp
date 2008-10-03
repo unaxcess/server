@@ -891,7 +891,7 @@ bool UserItemEdit(EDF *pData, int iOp, UserItem *pItem, EDF *pIn, EDF *pOut, Use
       {
          pItem->SetMarking(iMarking);
       }
-      
+
       if(pIn->GetChild("archiving", &iArchiving) == true)
       {
 	 pItem->SetArchiving(iArchiving);
@@ -2094,6 +2094,7 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    {
       pOut->Set("reply", MSG_ACCESS_INVALID);
 
+      delete[] szName;
       delete[] szRequest;
 
       debug("UserLogin exit false, %s\n", MSG_ACCESS_INVALID);
@@ -2174,15 +2175,16 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       }
       else
       {
-	 // Not a good password, deny access
-	    
-	 pOut->Set("reply", MSG_USER_LOGIN_INVALID);
-	 pOut->AddChild("name", szName);
-	   
-	 delete[] szRequest;
-	 
-	 debug("UserLogin exit false, %s (bad password stored)\n", MSG_USER_LOGIN_INVALID);
-	 return false;
+         // Not a good password, deny access
+
+         pOut->Set("reply", MSG_USER_LOGIN_INVALID);
+         pOut->AddChild("name", szName);
+
+         // delete[] szName;
+         delete[] szRequest;
+
+         debug("UserLogin exit false, %s (bad password stored)\n", MSG_USER_LOGIN_INVALID);
+         return false;
       }
 
       // printf("UserLogin passwords %s %s\n", szPassword, szDataPW);
@@ -2257,8 +2259,6 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          debug("UserLogin exit true, %s success\n", MSG_USER_LOGIN_QUERY);
          return true;
       }
-
-      delete[] szRequest;
 
       // Check the access type
       debug("UserLogin user type %d\n", pCurr->GetUserType());
@@ -2603,7 +2603,7 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       pConnData->m_pFolders = new DBSub(MessageTreeSubTable(RFG_FOLDER), MessageTreeID(RFG_FOLDER), pCurr->GetID());
       pConnData->m_pReads = new DBMessageRead(pCurr->GetID());
    }
-   
+
    debug("UserLogin %d folders, %d reads\n", pConnData->m_pFolders->Count(), pConnData->m_pReads->Count());
 
    debug("UserLogin creating new channel data\n");
@@ -2664,6 +2664,8 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       pData->SetChild("date", (int)(time(NULL)));
       pData->Parent();
    }
+
+   delete[] szRequest;
 
    debug("UserLogin exit true\n");
    // debugEDFPrint(pOut);
