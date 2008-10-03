@@ -20,9 +20,6 @@
 
 #define FM_READ_TABLE "folder_message_read"
 
-#define MARKTYPE_MSGCHILD 1
-#define MARKTYPE_CHILD 2
-
 struct DBMessageReadData
 {
    char m_iMarkType;
