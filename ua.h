@@ -19,7 +19,7 @@
 // MessageSpec start
 
 // Protocol
-#define PROTOCOL "2.7-beta13"
+#define PROTOCOL "2.8-alpha"
 
 // String lengths (UA_ prefix introduced in v2.4-beta8 due to conflicts with MySQL)
 #define UA_NAME_LEN 20
