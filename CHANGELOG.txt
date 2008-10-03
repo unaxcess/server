@@ -1,3 +1,15 @@
+Version 2.7-beta15, 05/04/05
+
+- Removed MARKTYPE_ defineds from DBMessageRead header
+
+Version 2.7-beta15, 10/09/04
+
+- Added EDFSECTION_MULTI flag to allow / deny / trust calls on SystemEdit to fix bug
+
+Version 2.7-beta14, 02/09/04
+
+- Fixed threading problems, visible deleted folder
+
 Version 2.7-beta13, 19/08/04
 
 - Changed MessageThread cross folder check to include all requests not just marking
