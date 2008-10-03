@@ -34,7 +34,7 @@ class EDF
 public:
    /* EDF(const char *szData = NULL);
    EDF(const byte *pData, long lDataLen);
-   EDF(const bytes *pData); */
+   EDF(bytes *pData); */
    EDF(EDF *pEDF = NULL);
    EDF(EDFElement *pElement);
    ~EDF();
@@ -49,14 +49,14 @@ public:
    int TypeGet(char **szName, bytes **pValue, long *lValue, double *dValue);
 
    bool Set(const char *szName, const char *szValue = NULL);
-   bool Set(const char *szName, const bytes *pValue);
+   bool Set(const char *szName, bytes *pValue);
    bool Set(const char *szName, const int iValue);
    bool Set(const char *szName, const long lValue);
    bool Set(const char *szName, const unsigned long lValue);
    bool Set(const char *szName, const double dValue);
 
    bool Add(const char *szName, const char *szValue = NULL, int iPosition = EDFElement::ABSLAST);
-   bool Add(const char *szName, const bytes *pValue, int iPosition = EDFElement::ABSLAST);
+   bool Add(const char *szName, bytes *pValue, int iPosition = EDFElement::ABSLAST);
    bool Add(const char *szName, const int iValue, int iPosition = EDFElement::ABSLAST);
    bool Add(const char *szName, const long lValue, int iPosition = EDFElement::ABSLAST);
    bool Add(const char *szName, const double dValue, int iPosition = EDFElement::ABSLAST);
@@ -74,7 +74,7 @@ public:
    int TypeGetChild(const char *szName, bytes **pValue, long *lValue, double *dValue, int iPosition = EDFElement::FIRST);
 
    bool SetChild(const char *szName, const char *szValue = NULL, int iPosition = EDFElement::FIRST);
-   bool SetChild(const char *szName, const bytes *pValue, int iPosition = EDFElement::FIRST);
+   bool SetChild(const char *szName, bytes *pValue, int iPosition = EDFElement::FIRST);
    bool SetChild(const char *szName, const int iValue, int iPosition = EDFElement::FIRST);
    bool SetChild(const char *szName, const bool bValue, int iPosition = EDFElement::FIRST);
    bool SetChild(const char *szName, const long lValue, int iPosition = EDFElement::FIRST);
@@ -84,7 +84,7 @@ public:
    bool SetChild(EDF *pEDF, const char *szName, int iPosition = EDFElement::FIRST);
 
    bool AddChild(const char *szName, const char *szValue = NULL, int iPosition = EDFElement::ABSLAST);
-   bool AddChild(const char *szName, const bytes *pValue, int iPosition = EDFElement::ABSLAST);
+   bool AddChild(const char *szName, bytes *pValue, int iPosition = EDFElement::ABSLAST);
    bool AddChild(const char *szName, const int iValue, int iPosition = EDFElement::ABSLAST);
    bool AddChild(const char *szName, const bool bValue, int iPosition = EDFElement::ABSLAST);
    bool AddChild(const char *szName, const long lValue, int iPosition = EDFElement::ABSLAST);
@@ -121,7 +121,7 @@ public:
    bool Copy(EDF *pEDF, const bool bSrcCurr = true, const bool bDestSet = false, const bool bRecurse = true);
 
    /* long Read(const char *szData, int iProgress = -1, const int iOptions = 0);
-   long Read(const bytes *pData, int iProgress = -1, const int iOptions = 0);
+   long Read(bytes *pData, int iProgress = -1, const int iOptions = 0);
    long Read(const byte *pData, long lDataLen, int iProgress = -1, const int iOptions = 0);
    bytes *Write(const bool bRoot, const bool bCurr, const bool bPretty = true, const bool bCRLF = false);
    bytes *Write(int iOptions = 0); */

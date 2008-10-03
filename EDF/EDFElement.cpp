@@ -49,7 +49,7 @@ EDFElement::EDFElement(const char *szName, const char *szValue, int iPosition)
    setValue(szValue);
 }
 
-EDFElement::EDFElement(const char *szName, const bytes *pValue, int iPosition)
+EDFElement::EDFElement(const char *szName, bytes *pValue, int iPosition)
 {
    init(NULL, szName, iPosition);
    setValue(pValue);
@@ -78,7 +78,7 @@ EDFElement::EDFElement(EDFElement *pParent, const char *szName, const char *szVa
    setValue(szValue);
 }
 
-EDFElement::EDFElement(EDFElement *pParent, const char *szName, const bytes *pValue, int iPosition)
+EDFElement::EDFElement(EDFElement *pParent, const char *szName, bytes *pValue, int iPosition)
 {
    init(pParent, szName, iPosition);
    setValue(pValue);
@@ -365,7 +365,7 @@ bool EDFElement::setValue(const byte *pValue, const long lValueLen, bool bLitera
    return true;
 }
 
-bool EDFElement::setValue(const bytes *pValue, const bool bLiterals, int iOptions)
+bool EDFElement::setValue(bytes *pValue, const bool bLiterals, int iOptions)
 {
    bytes *pTemp = (bytes *)pValue;
 
