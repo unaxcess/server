@@ -1,0 +1,3 @@
+#define BUILDNUM 120
+#define BUILDDATE "03/09/2004"
+#define BUILDTIME "09:26"

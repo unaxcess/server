@@ -1,0 +1,2 @@
+DBINC=/usr/include/mysql
+DBLIB=/usr/lib64/mysql
