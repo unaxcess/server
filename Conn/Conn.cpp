@@ -634,7 +634,7 @@ Conn::ConnState Conn::State()
 
    if(m_iState != OPEN)
    {
-      debug(DEBUGLEVEL_INFO, "Conn::State %d\n", m_iState);
+      debug(DEBUGLEVEL_DEBUG, "Conn::State %d\n", m_iState);
    }
 
    return m_iState;
@@ -647,9 +647,7 @@ long Conn::Timeout()
 
 long Conn::Timeout(long lTimeout)
 {
-   long lReturn = m_lTimeout;
-
-   debug("Conn::Timeout %ld (%ld)\n", lTimeout, m_lTimeout);
+   debug(DEBUGLEVEL_INFO, "Conn::Timeout %ld (%ld)\n", lTimeout, m_lTimeout);
    m_lTimeout = lTimeout;
 
    return m_lTimeout;
