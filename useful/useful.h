@@ -26,14 +26,14 @@ public:
    bytes();
    bytes(const char *szValue, int iValueLen = -1);
    bytes(const byte *pValue, int iValueLen);
-   bytes(const bytes *pValue, int iValueLen = -1);
+   bytes(bytes *pValue, int iValueLen = -1);
    ~bytes();
 
    byte *Data(bool bCopy);
    byte Char(int iPos);
    long Length();
 
-   long Append(char *szValue);
+   long Append(char *szValue, int iValueLen = -1);
    long Append(byte *pValue, int iValueLen);
    long Append(bytes *pValue, int iValueLen = -1);
    long Append(int iValue);
@@ -42,6 +42,7 @@ public:
 
    int Compare(const char *szValue);
    int Compare(const char *szValue, int iLength);
+   int Compare(bytes *pValue);
    int Compare(bytes *pValue, bool bIgnoreCase);
 
 private:
@@ -70,8 +71,9 @@ int memprint(FILE *fOutput, const char *szTitle, const byte *pData, long lDataLe
 int memprint(int iLevel, const char *szTitle, const byte *pData, long lDataLen, bool bRaw = false);
 int memprint(int iLevel, FILE *fOutput, const char *szTitle, const byte *pData, long lDataLen, bool bRaw = false);
 
-int bytesprint(const char *szTitle, const bytes *pBytes, bool bRaw = false);
-int bytesprint(FILE *fOutput, const char *szTitle, const bytes *pBytes, bool bRaw = false);
+int bytesprint(const char *szTitle, bytes *pBytes, bool bRaw = false);
+int bytesprint(FILE *fOutput, const char *szTitle, bytes *pBytes, bool bRaw = false);
+int bytesprint(int iLevel, FILE *fOutput, const char *szTitle, bytes *pBytes, bool bRaw = false);
 
 // Miscellaneous function
 #define BoolStr(x) (x == true ? "true" : "false")
@@ -94,6 +96,7 @@ int debug(const char *szFormat, ...);
 int debug(int iLevel, const char *szFormat, ...);
 
 bool debugbuffer(bool bBuffer);
+// bool debugbuffer();
 
 bool debugopen(const char *szFilename, int iMask = -1);
 bool debugclose(bool bDelete = false);
