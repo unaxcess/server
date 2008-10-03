@@ -1,0 +1,25 @@
+../Conn/Conn.o:		../Conn/Conn.cpp ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h
+../Conn/HTTPConn.o:	../Conn/HTTPConn.cpp ../Conn/HTTPConn.h
+../Conn/SMTPConn.o:	../Conn/SMTPConn.cpp ../Conn/SMTPConn.h ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h
+
+../EDF/EDF.o:		../EDF/EDF.cpp ../stdafx.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h
+../EDF/EDFElement.o:	../EDF/EDFElement.cpp ../stdafx.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h
+../EDF/EDFParser.o:	../EDF/EDFParser.cpp ../stdafx.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h
+../EDF/EDFTest.o:	../EDF/EDFTest.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../EDF/XMLParser.h
+../EDF/HTMLParser.o:	../EDF/HTMLParser.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../EDF/HTMLParser.h
+../EDF/XMLParser.o:	../EDF/XMLParser.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../EDF/XMLParser.h
+
+../EDF/EDFConn.o:	../common/EDFConn.cpp ../common/EDFConn.h ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDF.h ../EDF/EDFElement.h ../EDF/EDFParser.h
+
+../ua.o:   ../ua.cpp ../ua.h
+
+../client/CliFolder.o:	../client/CliFolder.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../ua.h ../client/CliFolder.h
+../client/CliTalk.o:	../client/CliTalk.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../ua.h ../client/CliTalk.h
+../client/CliUser.o:	../client/CliUser.cpp ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../ua.h ../client/CliUser.h
+../client/UAClient.o:	../client/UAClient.cpp ../client/UAClient.h ../common/EDFConn.h ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDF.h ../EDF/EDFElement.h ../EDF/EDFParser.h ../ua.h
+../client/UAService.o:	../client/UAService.cpp ../client/UAService.h ../client/UAClient.h ../common/EDFConn.h ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDF.h ../EDF/EDFElement.h ../EDF/EDFParser.h ../ua.h
+
+../useful/LeakTrace.o:	../useful/LeakTrace.cpp ../useful/LeakTrace.h
+	$(CC) $(CCFLAGS) -DLEAKTRACEON -c $< -o $(@)
+../useful/StackTrace.o:	../useful/StackTrace.cpp ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h
+../useful/useful.o:	../useful/useful.cpp ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h

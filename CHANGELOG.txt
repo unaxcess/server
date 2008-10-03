@@ -1,0 +1,208 @@
+Version 2.7-beta13, 19/08/04
+
+- Changed MessageThread cross folder check to include all requests not just marking
+
+Version 2.7-beta13, 06/08/04
+
+- Fixed FolderReadDB message loading bug (system wide expiry lookup added to max expiry check)
+
+Version 2.7-beta13, 07/07/04
+
+- Removed reply method from CClient
+- Added runStage to CClient
+- Expanded cross folder check in MessageThread to all requests not just marking
+
+Version 2.7-beta12, 30/04/04
+
+- Added Prev, additional Child methods to CEDF
+
+Version 2.7-beta11, 29/04/04
+
+- Fixed cross folder bug
+
+Version 2.7-beta9, 20/11/03
+
+- Fixed cross folder message marking for all in folder
+- Fixed unload / reload timeidle field bug
+
+Version 2.7-beta9, 18/11/03
+
+- Fixed deleted attachment bug
+
+Version 2.7-beta8, 13/11/03
+
+- Added vote value float types
+- Fixed lastmsg field not updating bug
+
+Version 2.7-beta8, 12/11/03
+
+- Added membership / subs data to folder_list
+
+Version 2.7-beta8, 11/11/03
+
+- Fixed DBSub::UserData subtype field bug
+- Added fields to UserItemListSubs to do access check
+
+Version 2.7-beta8, 07/11/03
+
+- Worked on STRVALUE and INTVALUES vote types
+
+Version 2.7-beta7, 24/09/03
+
+- Fixed user_edit details delete bug
+
+Version 2.7-beta7, 23/09/03
+
+- Added request name to task_list reply
+
+Version 2.7-beta6, 12/08/03
+
+- Fixed DeleteAttachment parameter order bug
+
+Version 2.7-beta5, 07/08/03
+
+- Changed StackTrace cannot increase to report max only
+
+Version 2.7-beta5, 07/07/03
+
+- Fixed EDFSectionFull multi-field current point bug
+
+Version 2.7-beta5, 24/06/03
+
+- Fixed cross folder catchup announcement bug
+
+Version 2.7-beta4, 12/06/03
+
+- Fixed strmatch bad pattern regcomp bug
+
+Version 2.7-beta4, 11/06/03
+
+- Fixed login_denied announcement bug
+- Fixed periodstats replication bug
+- Fixed EDFSectionFull input EDF navigation bug
+
+Version 2.7-beta4, 10/06/03
+
+- Fixed boolean NOT problems
+
+Version 2.7-beta3, 09/06/03
+
+- Live server upgrade
+- Changed default match condition AND for all client versions
+- Fixed folder info display for different parents / children
+
+Version 2.7-beta2, 02/06/03
+
+- Added marking rules
+- Reworked MessageListFolder tree types
+
+Version 2.7-beta2, 12/05/03
+
+- Fixed StackTrace::update bug
+- Changed default match op to AND for protocol 2.7 and above
+
+Version 2.7-beta2, 02/05/03
+
+- Reworked MessageList for folders
+
+Version 2.7-beta2, 10/03/03
+
+- Removed folder_message_archive table, integrated archive searching into main search
+
+Version 2.7-beta1, 26/02/03
+
+- Fixed archive request for non-archive message crash
+
+Version 2.7-beta1, 12/02/03
+
+- Stopped votes being moved by editors
+
+Version 2.7-beta1, 10/02/03
+
+- Fixed debugopen mask value bug
+- Added SetPanic method to UAClient
+
+Version 2.7-beta1, 07/02/03
+
+- Integrated archive searching code (MessageArchive functions in RqFolder.cpp)
+
+Version 2.7-alpha, 31/01/03
+
+- Changed message_list searching to separate text / subject / keyword (text or subject) fields
+
+Version 2.7-alpha, 17/01/03
+
+- Fixed disappearing message during maintenance bug
+
+Version 2.7-alpha, 12/12/02
+
+- Added date parameter to MessageItemListDetail so old names on attachment elements as picked up
+- Added FileRead / FileWrite methods to CClient .NET framework component
+
+Version 2.7-alpha, 11/12/02
+
+- Fixed BulletinGet bug (Find changed to MessageFind)
+- Changed MessageList to add nummsgs / totalmsgs fields for bulletin_list
+
+Version 2.7-alpha, 05/12/02
+
+- Changed input message info to snprintf output in ICE main loop
+- Moved logout / disconnect code in UAClient to shutdown method
+- Added sprintf to useful.h
+
+Version 2.7-alpha, 20/11/02
+
+- Fixed EDF::TypeGet string return bug
+
+Version 2.7-alpha, 06/11/02
+
+- Fixed StackTrace excess depth bug
+
+Version 2.7-alpha, 28/10/02
+
+- Added sub check to message base MessageTreeAccess call in ServerAnnounce (fixes unsubscribed folder message announcements)
+
+Version 2.7-alpha, 15/10/02
+
+- Changed message_text data type from TEXT to MEDIUMTEXT in ua-folder.sql
+
+Version 2.7-alpha, 23/09/02
+
+- Fixed empty field name in MessageTreeAccessFull function for no access return
+
+Version 2.7-alpha, 24/07/02
+
+- Added setInterval method to UAClient
+- Added fflush to loop method in UAClient
+
+Version 2.7-alpha, 23/07/02
+
+- Added status field to service_subscribe request
+
+Version 2.7-alpha
+
+- Added providerid field to folders
+- Added content request function set
+- Added object storage to provider folders
+
+Version 2.7-alpha, 27/06/02
+
+- Changed ConnectionCIDR to ConnectionAddress (now understands a.b.c.d/e and a.b.c.d-a.b.c.d notation)
+
+Version 2.7-alpha, 26/06/02
+
+- Fixed EDFMax recursive flag bug in LocationAdd
+
+Version 2.7-alpha, 19/06/02
+
+- Added umask arg to debugopen
+- Changed request method in UAClient to virtual scope
+- Remove value from option structure and used m_pData member instead
+
+Version 2.7-alpha, 18/06/02
+
+- Cutover from v2.6 code
+- Moved EDFConn to common
+- Moved Conn, useful directories to Source hierarchy and created links
+- Moved EDFConn to common directory
+- Moved Item classes to server directory
