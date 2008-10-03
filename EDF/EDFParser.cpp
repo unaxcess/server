@@ -22,7 +22,7 @@ long EDFParser::Read(EDF *pEDF, const char *szData, int iProgress, int iOptions)
    return Read(pEDF, (const byte *)szData, strlen(szData));
 }
 
-long EDFParser::Read(EDF *pEDF, const bytes *pData, int iProgress, int iOptions)
+long EDFParser::Read(EDF *pEDF, bytes *pData, int iProgress, int iOptions)
 {
 	STACKTRACE
    bytes *pTemp = (bytes *)pData;
@@ -106,7 +106,7 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
 	char *szName = NULL, *szParse = NULL;
 	byte *pPos = (byte *)pData, *pStop = pPos + lDataLen, *pStart = pPos, *pLine = pPos, *pParse = NULL, *pProgress = pPos;//, *pValue = NULL;
 	EDFElement *pElement = NULL, *pRoot = NULL, *pCurr = NULL;
-	
+
 	// if(m_bDebug == true)
 	{
 		debug(DEBUGLEVEL_DEBUG, "EDFParser::Read entry %p %ld %d\n", pData, lDataLen, iProgress);
@@ -142,7 +142,7 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
 			}
          pPos++;
       }
-		
+
 		if(!VALID_CHAR)
 		{
          lReturn = -2;
@@ -154,9 +154,9 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
 
 			// Start of element
 			pPos++;
-			
+
 			WHITE_SPACE("before name")
-			
+
 			if(!VALID_CHAR)
          {
             PARSE_ERROR("EOD before name", -1)
@@ -183,7 +183,7 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
             lSpace += tickdiff(dSpace);
 
             dName = gettick();
-				
+
 				pStart = pPos;
             // pPos++; // Skip over first chacter
 				while(VALID_CHAR && (isalnum(*pPos) || *pPos == '-'))
@@ -260,7 +260,7 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
 							{
 								if(*pPos == '=')
 								{
-									// Value								
+									// Value
 									pPos++;
 
                            dSpace = gettick();
@@ -496,7 +496,7 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
       // dValue = gettick();
 		delete pRoot;
       // lDelete = tickdiff(dValue);
-		
+
 		// if(m_bDebug == true)
       lTick = tickdiff(dTick);
       /* if(lTick > 250)
@@ -516,9 +516,9 @@ long EDFParser::Read(EDF *pEDF, const byte *pData, const long lDataLen, const in
 
 		// Root();
 	}
-	
+
    // pRoot->print("EDFParser::Read");
-	
+
 	// if(m_bDebug == true)
    /* lTick = tickdiff(dTick);
    if(lTick > 250)
@@ -570,7 +570,7 @@ bytes *EDFParser::Write(EDF *pEDF, const int iOptions)
    bytes *pReturn = NULL;
 
    debug(DEBUGLEVEL_DEBUG, "EDFParser::Write %p %d\n", pEDF, iOptions);
-	
+
    if(mask(iOptions, EDFElement::EL_ROOT) == true)
    {
       pElement = pEDF->GetCurr();
@@ -620,7 +620,7 @@ EDF *EDFParser::FromFile(const char *szFilename, size_t *lReadLen, const int iPr
    }
 
    // Print("EDFParser::FromFile", pEDF);
-	
+
    // printf(" FileToEDF exit %p\n", pEDF);
    return pEDF;
 }
@@ -659,7 +659,7 @@ bool EDFParser::Print(EDF *pEDF, int iOptions)
 bool EDFParser::Print(EDF *pEDF, const bool bRoot, const bool bCurr)
 {
 	int iOptions = EDFElement::PR_SPACE;
-	
+
 	if(bRoot == true)
 	{
 		iOptions |= EDFElement::EL_ROOT;
@@ -668,7 +668,7 @@ bool EDFParser::Print(EDF *pEDF, const bool bRoot, const bool bCurr)
 	{
 		iOptions |= EDFElement::EL_CURR;
 	}
-	
+
 	return EDFParser::Print(NULL, NULL, pEDF, iOptions);
 }
 
@@ -680,7 +680,7 @@ bool EDFParser::Print(const char *szTitle, EDF *pEDF, const int iOptions)
 /* void EDFParser::Print(const char *szTitle, EDF *pEDF, const bool bRoot, const bool bCurr)
 {
 	int iOptions = EDFElement::PR_SPACE;
-	
+
 	if(bRoot == true)
 	{
 		iOptions |= EDFElement::EL_ROOT;
@@ -701,11 +701,11 @@ bool EDFParser::Print(FILE *fOutput, const char *szTitle, EDF *pEDF, int iOption
 
    debug(DEBUGLEVEL_DEBUG, "EDFParser::Print %p '%s' %p %d\n", fOutput, szTitle, pEDF, iOptions);
 
-   if(fOutput == NULL)
+   /* if(fOutput == NULL)
    {
       fOutput = stdout;
-   }
-	
+   } */
+
 	if(iOptions == -1)
 	{
 		iOptions = EDFElement::EL_ROOT | EDFElement::EL_CURR | EDFElement::PR_SPACE;
@@ -719,19 +719,47 @@ bool EDFParser::Print(FILE *fOutput, const char *szTitle, EDF *pEDF, int iOption
    }
    if(szTitle != NULL)
    {
-      fprintf(fOutput, "%s:\n", szTitle);
+      if(fOutput == NULL)
+      {
+         debug("%s:\n", szTitle);
+      }
+      else
+      {
+         fprintf(fOutput, "%s:\n", szTitle);
+      }
    }
    if(pWrite != NULL)
    {
-      fwrite(pWrite->Data(false), 1, pWrite->Length(), fOutput);
+      if(fOutput == NULL)
+      {
+         debug((char *)pWrite->Data(false));
+      }
+      else
+      {
+         fwrite(pWrite->Data(false), 1, pWrite->Length(), fOutput);
+      }
       if(pWrite->Length() > 0)
       {
-         fprintf(fOutput, "\n");
+         if(fOutput == NULL)
+         {
+            debug("\n");
+         }
+         else
+         {
+            fprintf(fOutput, "\n");
+         }
       }
    }
    else
    {
-      fwrite("NULL\n", 1, 5, fOutput);
+      if(fOutput == NULL)
+      {
+         debug("NULL\n");
+      }
+      else
+      {
+         fwrite("NULL\n", 1, 5, fOutput);
+      }
    }
 
    delete pWrite;
@@ -742,7 +770,7 @@ bool EDFParser::Print(FILE *fOutput, const char *szTitle, EDF *pEDF, int iOption
 bool EDFParser::Print(FILE *fOutput, const char *szTitle, EDF *pEDF, const bool bRoot, const bool bCurr)
 {
 	int iOptions = EDFElement::PR_SPACE;
-	
+
 	if(bRoot == true)
 	{
 		iOptions |= EDFElement::EL_ROOT;
@@ -763,7 +791,7 @@ bool EDFParser::debugPrint(EDF *pEDF, const int iOptions)
 bool EDFParser::debugPrint(EDF *pEDF, const bool bRoot, const bool bCurr)
 {
 	int iOptions = EDFElement::PR_SPACE;
-	
+
 	if(bRoot == true)
 	{
 		iOptions |= EDFElement::EL_ROOT;
@@ -772,7 +800,7 @@ bool EDFParser::debugPrint(EDF *pEDF, const bool bRoot, const bool bCurr)
 	{
 		iOptions |= EDFElement::EL_CURR;
 	}
-	
+
 	return EDFParser::debugPrint(0, NULL, pEDF, iOptions);
 }
 
@@ -793,13 +821,13 @@ bool EDFParser::debugPrint(int iLevel, const char *szTitle, EDF *pEDF, const int
       return false;
    }
 
-	return EDFParser::Print(debugfile(), szTitle, pEDF, iOptions);
+	return EDFParser::Print(NULL, szTitle, pEDF, iOptions);
 }
 
 /* void EDFParser::debugPrint(const char *szTitle, EDF *pEDF, const bool bRoot, const bool bCurr)
 {
 	int iOptions = EDFElement::PR_SPACE;
-	
+
 	if(bRoot == true)
 	{
 		iOptions |= EDFElement::EL_ROOT;
