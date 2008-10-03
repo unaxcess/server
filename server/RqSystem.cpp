@@ -1709,7 +1709,6 @@ ICELIBFN bool SystemContact(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       }
       pAnnounce->AddChild("contactid", lContactID);
    }
-   pAnnounce->AddChild(pIn, "subject");
    pAnnounce->AddChild(pIn, "text");
 
    if(bMultiple == true)
