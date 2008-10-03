@@ -59,12 +59,12 @@ bool MessageVoteClose(EDF *pData, int iBase, FolderMessageItem *pItem, bool bAnn
 bool CrossFolder(int iFolderID, MessageTreeItem *pChild)
 {
    MessageTreeItem *pParent = FolderGet(iFolderID);
-   
+
    if(pParent == pChild)
    {
       return true;
    }
-   
+
    debug("CrossFolder %p(%d %d) %p(%d)", pParent, pParent->GetID(), pParent->GetReplyID(), pChild, pChild->GetID());
    if(pParent->GetReplyID() != -1 && pParent->GetReplyID() == pChild->GetID())
    {
@@ -1638,7 +1638,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
 
          // printf("MessageMarking %ld(%s) / %ld / %ld / %d", pUser->GetID(), pUser->GetName(), pFolderMessage->GetID(), pFolderMessage->GetParentID(), iMarkType);
 
-         if(iMarkType == MARKTYPE_MSGCHILD || iMarkType == MARKTYPE_CHILD)
+         if(iMarkType == THREAD_MSGCHILD || iMarkType == THREAD_CHILD)
          {
             // Stay caught up
             pParent = (FolderMessageItem *)pItem->GetParent();
@@ -1647,7 +1647,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                // Parent must be same folder or...
                if(pParent->GetTreeID() == pItem->GetTreeID())
                {
-                  iReturn = MessageMark(pItem, true, pUser, pReads, MARKTYPE_MSGCHILD);
+                  iReturn = MessageMark(pItem, true, pUser, pReads, THREAD_MSGCHILD);
                }
                else
                {
@@ -1655,7 +1655,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                   pParentFolder = pParent->GetTree();
                   if(pParentFolder->GetReplyID() == pItem->GetTreeID())
                   {
-                     iReturn = MessageMark(pItem, true, pUser, pReads, MARKTYPE_MSGCHILD);
+                     iReturn = MessageMark(pItem, true, pUser, pReads, THREAD_MSGCHILD);
                   }
                   else
                   {
@@ -2362,7 +2362,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
             }
          }
       }
-      
+
       // debug("MessageThreadAction check point 1\n");
 
       if(bCheck == true && (bMatchFields == false || MessageMatch(pFolderMessage, pIn, MATCH_AND) == true))
@@ -2456,7 +2456,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
          // DBMessageRead::Debug(bDebug);
       }
    }
-   
+
    // debug("MessageThreadAction check point 2 %p %p\n", pFolderMessage, pFolder1);
 
    if(iType == THREAD_MSGCHILD || iType == THREAD_CHILD)
@@ -2473,7 +2473,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
          iNumChildren = pFolder1->MessageCount(false);
       }
       // debug("MessageThreadAction %d children\n", iNumChildren);
-      
+
       // Check children
       for(iChildNum = 0; iChildNum < iNumChildren; iChildNum++)
       {
@@ -2958,7 +2958,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          }
       }
    }
-   
+
    if(bMessageID == true)
    {
       bCrossFolder = pIn->GetChildBool("crossfolder");
@@ -3165,7 +3165,7 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
       if(pCurr != NULL && pFolderMessage->GetFromID() == pCurr->GetID())
       {
-    iLevel |= FOLDERMESSAGEITEMWRITE_SELF;
+         iLevel |= FOLDERMESSAGEITEMWRITE_SELF;
       }
 
       FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_SINGLE, iUserID, iAccessLevel, iSubType, bArchive, pConnData, pFolders, pReads, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
