@@ -6,10 +6,11 @@
 all:
 		cd ICE ; make 
 		cd server ; make 
+		cd client ; make 
+		cd utils ; make 
 
 clean:
 		cd ICE ; make clean
 		cd server ; make clean
-
-install:
-		cd server ; make install
+		cd client ; make clean
+		cd utils ; make clean
