@@ -634,7 +634,7 @@ Conn::ConnState Conn::State()
 
    if(m_iState != OPEN)
    {
-      debug(DEBUGLEVEL_DEBUG, "Conn::State %d\n", m_iState);
+      debug(DEBUGLEVEL_INFO, "Conn::State %d\n", m_iState);
    }
 
    return m_iState;
@@ -647,7 +647,9 @@ long Conn::Timeout()
 
 long Conn::Timeout(long lTimeout)
 {
-   debug(DEBUGLEVEL_INFO, "Conn::Timeout %ld (%ld)\n", lTimeout, m_lTimeout);
+   long lReturn = m_lTimeout;
+
+   debug("Conn::Timeout %ld (%ld)\n", lTimeout, m_lTimeout);
    m_lTimeout = lTimeout;
 
    return m_lTimeout;
@@ -906,8 +908,8 @@ bool Conn::StringToAddress(const char *szAddress, unsigned long *lAddress, bool 
 bool Conn::CIDRToRange(const char *szAddress, unsigned long *pMin, unsigned long *pMax)
 {
    STACKTRACE
-   int iAddrPos = 0, iSetNum = 0, iRange = 0, iSet[4];
-   unsigned long lMin = 0, lMax = 0;
+   int iAddrPos = 0, iSetNum = 0, iRange = 0;
+   unsigned long iSet[4], lMin = 0, lMax = 0;
 
    iSet[0] = 0;
    iSet[1] = 0;
