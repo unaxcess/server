@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <regex.h>
+#include <stdarg.h>
 #include <sys/timeb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -852,92 +853,6 @@ bool ConnectionAnnounce(EDFConn *pConn, ConnData *pConnData, EDF *pData)
    return bReturn;
 }
 
-bool ConnectionAddress(char *szAddress, unsigned long *pMin, unsigned long *pMax)
-{
-   STACKTRACE
-   int iAddrPos = 0, iSetNum = 0, iIPNum = 0, iRange = 0, pIPs[2][4];
-   unsigned long lMin = 0, lMax = 0;
-
-   pIPs[0][0] = 0;
-   pIPs[0][1] = 0;
-   pIPs[0][2] = 0;
-   pIPs[0][3] = 0;
-
-   pIPs[1][0] = 0;
-   pIPs[1][1] = 0;
-   pIPs[1][2] = 0;
-   pIPs[1][3] = 0;
-
-   // Split the address field into 4 numbers and optional range (for CIDR / between values)
-   while(szAddress[iAddrPos] != '\0')
-   {
-      if(szAddress[iAddrPos] == '.')
-      {
-         if(iIPNum < 3)
-         {
-            iIPNum++;
-         }
-         else
-         {
-            iIPNum = 5;
-         }
-      }
-      else if(szAddress[iAddrPos] == '-')
-      {
-         iIPNum = 0;
-         iSetNum = 1;
-      }
-      else if(szAddress[iAddrPos] == '/')
-      {
-         iIPNum = 0;
-         iSetNum = 2;
-      }
-      else if(iSetNum == 2 && isdigit(szAddress[iAddrPos]))
-      {
-         iRange = 10 * iRange + (szAddress[iAddrPos] - '0');
-      }
-      else if(iIPNum < 4 && isdigit(szAddress[iAddrPos]))
-      {
-         pIPs[iSetNum][iIPNum] = 10 * pIPs[iSetNum][iIPNum] + (szAddress[iAddrPos] - '0');
-      }
-      else
-      {
-         debug("ConnectionMatch bad char '%c' (%d of %s)\n", szAddress[iAddrPos], iAddrPos, szAddress);
-
-         return false;
-      }
-
-      iAddrPos++;
-   }
-
-   lMin = pIPs[0][0] << 24;
-   lMin += pIPs[0][1] << 16;
-   lMin += pIPs[0][2] << 8;
-   lMin += pIPs[0][3];
-   if(iSetNum == 2)
-   {
-      lMax = lMin + (long)ldexp((double)2, 32 - iRange);
-   }
-   else if(iSetNum == 1)
-   {
-      lMax = pIPs[1][0] << 24;
-      lMax += pIPs[1][1] << 16;
-      lMax += pIPs[1][2] << 8;
-      lMax += pIPs[1][3];
-   }
-   else
-   {
-      lMax = lMin;
-   }
-
-   *pMin = lMin;
-   *pMax = lMax;
-
-   // debug("ConnectionAddress '%s' -> %lu %lu, %d.%d.%d.%d/%d, %d.%d.%d.%d\n", szAddress, lMin, lMax, pIPs[0][0], pIPs[0][1], pIPs[0][2], pIPs[0][3], iRange, pIPs[1][0], pIPs[1][1], pIPs[1][2], pIPs[1][3]);
-
-   return true;
-}
-
 // Check all child nodes for matching hostname and address fields
 bool ConnectionMatch(EDF *pData, char *szHostname, unsigned long lAddress)
 {
@@ -946,11 +861,11 @@ bool ConnectionMatch(EDF *pData, char *szHostname, unsigned long lAddress)
    bool bLoop = false, bMatch = false;
    char *szType = NULL, *szValue = NULL, *szName = NULL;
 
-   // printf("ConnectionMatch entry %s %ul\n", szHostname, lAddress);
+   debug(DEBUGLEVEL_DEBUG, "ConnectionMatch entry %s %ul\n", szHostname, lAddress);
    // EDFPrint(pData, false);
 
    pData->GetChild("name", &szName);
-   // printf("ConnectionMatch location %s\n", szName);
+   debug(DEBUGLEVEL_DEBUG, "ConnectionMatch location %s\n", szName);
    delete[] szName;
 
    bLoop = pData->Child();
@@ -959,16 +874,16 @@ bool ConnectionMatch(EDF *pData, char *szHostname, unsigned long lAddress)
       szValue = NULL;
       pData->Get(&szType, &szValue);
 
-      // printf("ConnectionMatch check %s %s\n", szType, szValue);
+      debug(DEBUGLEVEL_DEBUG, "ConnectionMatch check %s %s\n", szType, szValue);
       if(stricmp(szType, "hostname") == 0 && szValue != NULL && szHostname != NULL)
       {
          bMatch = strmatch(szHostname, szValue, true, true, false);
       }
       else if(stricmp(szType, "address") == 0 && szValue != NULL && lAddress != 0)
       {
-         if(ConnectionAddress(szValue, &lMin, &lMax) == true)
+         if(Conn::CIDRToRange(szValue, &lMin, &lMax) == true)
          {
-            // printf("ConnectionMatch %s -> %lu / %lu\n", szValue, lMin, lMax);
+            debug(DEBUGLEVEL_DEBUG, "ConnectionMatch %s -> %lu / %lu\n", szValue, lMin, lMax);
 
             if(lMin <= lAddress && lAddress <= lMax)
             {
@@ -1003,7 +918,7 @@ bool ConnectionMatch(EDF *pData, char *szHostname, unsigned long lAddress)
       delete[] szValue;
    }
 
-   // printf("ConnectionMatch exit %s\n", BoolStr(bMatch));
+   debug(DEBUGLEVEL_DEBUG, "ConnectionMatch exit %s\n", BoolStr(bMatch));
    // EDFPrint(pData, false);
    return bMatch;
 }
