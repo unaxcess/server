@@ -908,8 +908,8 @@ bool Conn::StringToAddress(const char *szAddress, unsigned long *lAddress, bool 
 bool Conn::CIDRToRange(const char *szAddress, unsigned long *pMin, unsigned long *pMax)
 {
    STACKTRACE
-   int iAddrPos = 0, iSetNum = 0, iRange = 0, iSet[4];
-   unsigned long lMin = 0, lMax = 0;
+   int iAddrPos = 0, iSetNum = 0, iRange = 0;
+   unsigned long iSet[4], lMin = 0, lMax = 0;
 
    iSet[0] = 0;
    iSet[1] = 0;
