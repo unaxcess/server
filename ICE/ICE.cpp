@@ -386,7 +386,8 @@ void RequestMessageProcess(EDF *&pConfig, EDFConn *pConn, EDF *pIn, EDF *pOut, c
    char *szFunction = NULL, *szReply = NULL;
    LIBMSGFN pMsgProcess = NULL;
 
-   // printf("RequestMessageProcess entry %s, %d %p\n", szMessage, pConn->State(), pConn->Data());
+   debug(DEBUGLEVEL_DEBUG, "RequestMessageProcess entry %s, %d %p\n", szMessage, pConn->State(), pConn->Data());
+   EDFParser::debugPrint(DEBUGLEVEL_DEBUG, pIn);
    // EDFPrint(pIn, false, false);
    // EDFPrint("RequestMessageProcess", pIn);
 
@@ -551,7 +552,7 @@ void debuglog(bool bOpen)
 int main(int argc, char **argv)
 {
    STACKTRACE
-   int iPort = 0, iUpdate = 2, iArgNum = 1, iStartup = 0, iMemDiff = 0, iLoopDiff = 0, iNumInputs = 0, iClientNum = 0, iDebug = 0;
+   int iPort = 0, iUpdate = 2, iArgNum = 1, iStartup = 0, iMemDiff = 0, iLoopDiff = 0, iNumInputs = 0, iClientNum = 0, iDebug = DEBUGLEVEL_INFO;
    int iConnBG = 0, iServerBG = 0, iStorage = 0;
    long lTimeout = 0, lTickDiff = 0, lInputSize = -1, lBufferSize = -1;
    time_t tServerLog = 0, tServerBackground = 0;
@@ -628,6 +629,8 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   pConfig->GetChild("debuglevel", &iDebug);
+   debug("Info: Got debug level %d from the config file\n", iDebug);
    pConfig->GetChild("port", &iPort);
 #ifdef CONNSECURE
    pConfig->GetChild("certificate", &szCertificate);
@@ -660,6 +663,11 @@ int main(int argc, char **argv)
       {
          iArgNum++;
       }
+      else if(iArgNum < argc - 1 && stricmp(argv[iArgNum], "-debuglevel") == 0)
+      {
+         iDebug = atoi(argv[++iArgNum]);
+         debug("Info: Overriding debug level to %d from the command line\n", iDebug);
+      }
       else
       {
          debug("Unrecognised option %s\n", argv[iArgNum]);
@@ -667,6 +675,9 @@ int main(int argc, char **argv)
       // printf("\n");
       iArgNum++;
    }
+
+   debug("Info: Setting debug level to %d\n", iDebug);
+   debuglevel(iDebug);
 
    // Load the data file
    pConfig->GetChild("data", &m_szDataFile);
