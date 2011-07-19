@@ -17,6 +17,7 @@ BINARY2=../bin/ua
 BINARY3=../bin/MessageSpec
 BINARY4=../bin/Posting
 BINARY5=../bin/BigThreads
+BINARY6=../bin/Location
 BINARY=$(BINARY2) $(BINARY1) $(BINARY3)
 # OBJS=server.o DBSub.o DBMessageRead.o RqTree.o RqFolder.o RqTalk.o RqSystem.o RqUser.o ../ua.o Folder.o Tree.o Talk.o User.o ChannelMessageItem.o FolderMessageItem.o MessageTreeItem.o MessageItem.o UserItem.o EDFItem.o EDFItemList.o ../db/db-MySQL.o ../db/DBTable.o ../EDF/EDF.o ../EDF/EDFElement.o ../EDF/EDFParser.o ../useful/StackTrace.o ../Conn/Conn.o ../common/EDFConn.o ../useful/useful.o
 OBJS=server.o DBSub.o DBMessageRead.o RqTree.o RqFolder.o RqTalk.o RqSystem.o RqUser.o ../ua.o Folder.o Tree.o Talk.o User.o ChannelMessageItem.o FolderMessageItem.o MessageTreeItem.o MessageItem.o UserItem.o EDFItem.o EDFItemList.o ../db/db-MySQL.o ../db/DBTable.o
@@ -25,6 +26,7 @@ OBJS2=$(OBJS) ../EDF/EDF.o ../EDF/EDFElement.o ../EDF/EDFParser.o ../useful/Stac
 OBJS3=MessageSpec.o ../EDF/EDF.o ../EDF/EDFElement.o ../EDF/EDFParser.o ../useful/useful.o ../useful/StackTrace.o
 OBJS4=Posting.o ../db/DBTable.o ../db/db-MySQL.o ../useful/useful.o ../useful/StackTrace.o ../EDF/EDFElement.o ../EDF/EDF.o ../EDF/EDFParser.o
 OBJS5=BigThreads.o ../db/DBTable.o ../db/db-MySQL.o ../useful/useful.o ../useful/StackTrace.o
+OBJS6=$(OBJS) Location.o Skeleton.o ../EDF/EDF.o ../EDF/EDFElement.o ../EDF/EDFParser.o ../useful/StackTrace.o ../Conn/Conn.o ../common/EDFConn.o ../useful/useful.o
 
 
 all:	$(BINARY)
@@ -50,6 +52,9 @@ $(BINARY4):	$(OBJS4)
 
 $(BINARY5):	$(OBJS5)
 	$(LD) -o $(BINARY5) $(OBJS5) $(LDFLAGS)
+
+$(BINARY6):     $(OBJS6)
+	$(LD) -o $(BINARY6) $(OBJS6) $(LDFLAGS)
 
 install:	$(OBJS)
 	@\rm -f ../bin/$(BINARY1)
@@ -97,5 +102,7 @@ SpecConv.o:	SpecConv.cpp ../useful/useful.h ../useful/StackTrace.h ../useful/Lea
 Posting.o:      Posting.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../common/EDFConn.h ../Conn/Conn.h ../db/DBTable.h ../ua.h
 
 BigThreads.o:      BigThreads.cpp ../useful/useful.h ../useful/StackTrace.h ../db/DBTable.h
+
+Location.o:	Location.cpp
 
 include ../Makefile.dep

@@ -81,7 +81,7 @@ bytes::bytes(const byte *pValue, int iValueLen)
    }
 }
 
-bytes::bytes(bytes *pValue, int iValueLen)
+bytes::bytes(const bytes *pValue, int iValueLen)
 {
    STACKTRACE
 
@@ -142,14 +142,9 @@ long bytes::Length()
    return m_lLength;
 }
 
-long bytes::Append(char *szValue, int iValueLen)
+long bytes::Append(char *szValue)
 {
-   if(iValueLen == -1)
-   {
-      iValueLen = strlen(szValue);
-   }
-
-   return Append((byte *)szValue, iValueLen);
+   return Append((byte *)szValue, strlen(szValue));
 }
 
 long bytes::Append(byte *pValue, int iValueLen)
@@ -228,11 +223,6 @@ int bytes::Compare(const char *szValue, int iLength)
    }
 
    return strncmp((char *)m_pData, szValue, iLength);
-}
-
-int bytes::Compare(bytes *pValue)
-{
-   return Compare(pValue, false);
 }
 
 int bytes::Compare(bytes *pValue, bool bIgnoreCase)
@@ -552,19 +542,14 @@ int memprint(int iLevel, FILE *fOutput, const char *szTitle, const byte *pData, 
    return 0;
 }
 
-int bytesprint(const char *szTitle, bytes *pBytes, bool bRaw)
+int bytesprint(const char *szTitle, const bytes *pBytes, bool bRaw)
 {
-   return bytesprint(-1, stdout, szTitle, pBytes, bRaw);
+   return bytesprint(stdout, szTitle, pBytes, bRaw);
 }
 
-int bytesprint(FILE *fOutput, const char *szTitle, bytes *pBytes, bool bRaw)
+int bytesprint(FILE *fOutput, const char *szTitle, const bytes *pBytes, bool bRaw)
 {
-   return bytesprint(-1, fOutput, szTitle, pBytes, bRaw);
-}
-
-int bytesprint(int iLevel, FILE *fOutput, const char *szTitle, bytes *pBytes, bool bRaw)
-{
-   return memprint(iLevel, fOutput, szTitle, pBytes != NULL ? ((bytes *)pBytes)->Data(false) : NULL, pBytes != NULL ? ((bytes *)pBytes)->Length() : 0, bRaw);
+   return memprint(fOutput, szTitle, pBytes != NULL ? ((bytes *)pBytes)->Data(false) : NULL, pBytes != NULL ? ((bytes *)pBytes)->Length() : 0, bRaw);
 }
 
 #define SKIP_WS \
@@ -841,7 +826,7 @@ void MsgError(const char *szTitle)
 int debug(int iLevel, const char *szFormat, va_list vList)
 {
    int iPrint = 0;
-   char szBuffer[10000];
+   char szBuffer[2000];
 
    if(iLevel > g_iDebug)
    {
@@ -913,11 +898,6 @@ bool debugbuffer(bool bBuffer)
 
    return bReturn;
 }
-
-/* bool debugbuffer()
-{
-   return m_bDebugBuffer;
-} */
 
 bool debugopen(const char *szFilename, int iMask)
 {

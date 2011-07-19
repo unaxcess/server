@@ -49,9 +49,6 @@ public:
    bool SetText(bytes *pText);
    bool AddText(bytes *pText);
 
-   bytes *GetSubject(bool bCopy = false);
-   bool SetSubject(bytes *pSubject);
-
    bool AddDelete(long lUserID, long lDate = -1);
    bool AddEdit(long lUserID, long lDate = -1);
 
@@ -62,7 +59,7 @@ public:
    long AttachmentID(int iAttachmentNum);
    long AttachmentSize(int iAttachmentNum);
    int AttachmentCount();
-
+   
    int MessagePos(long lID, bool *bFound);
 
    long GetMaxID();
@@ -97,7 +94,6 @@ private:
 	long m_lToID;
    bytes *m_pToName;
 	bytes *m_pText;
-   bytes *m_pSubject;
 
    void WriteEDFAttachment(EDF *pEDF, int iLevel);
 };

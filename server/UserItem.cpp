@@ -225,8 +225,6 @@ UserItem::~UserItem()
    DeleteDetail("refer");
    DeleteDetail("picture");
    DeleteDetail("pgpkey");
-
-   delete m_pPages;
 }
 
 /* const char *UserItem::GetClass()
@@ -806,8 +804,11 @@ bool UserItem::SetAgentData(EDF *pEDF)
    SET_EDF("agent")
 
    m_pEDF->DeleteChild("data");
-   m_pEDF->Add("data");
-   m_pEDF->Copy(pEDF, false);
+   if(pEDF != NULL)
+   {
+      m_pEDF->Add("data");
+      m_pEDF->Copy(pEDF, false);
+   }
 
    return true;
 }
@@ -912,26 +913,6 @@ bool UserItem::DeleteRule(int iRuleID)
 EDF *UserItem::GetFriends(bool bCreate)
 {
    GET_EDF_SECTION("friends", NULL)
-}
-
-bool UserItem::AddPage(MessageItem *pPage)
-{
-   return m_pPages->Add(pPage);
-}
-
-bool UserItem::DeletePage(long lPageID)
-{
-   return m_pPages->Delete(lPageID);
-}
-
-int UserItem::GetPageCount()
-{
-   return m_pPages->Count();
-}
-
-MessageItem *UserItem::GetPage(int iPageNum)
-{
-   return (MessageItem *)m_pPages->Item(iPageNum);
 }
 
 bool UserItem::IsIdle(long lTimeIdle)
@@ -1635,8 +1616,6 @@ void UserItem::init()
 
    m_szWriteStatusMsg = NULL;
    m_szWriteClient = NULL;
-
-   m_pPages = new EDFItemList(true);
 }
 
 void UserItem::setup()

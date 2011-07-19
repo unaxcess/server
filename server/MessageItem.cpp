@@ -52,7 +52,6 @@ MessageItem::MessageItem(EDF *pEDF, MessageItem *pParent, MessageTreeItem *pTree
    ExtractMember(pEDF, "toid", &m_lToID, -1);
    ExtractMember(pEDF, "toname", &m_pToName);
    ExtractMember(pEDF, "text", &m_pText);
-   ExtractMember(pEDF, "subject", &m_pSubject);
 
    setup();
 }
@@ -71,7 +70,6 @@ MessageItem::MessageItem(DBTable *pTable, MessageItem *pParent, MessageTreeItem 
    GET_INT_TABLE(4, m_lFromID, -1)
    GET_INT_TABLE(5, m_lToID, -1)
    GET_BYTES_TABLE(6, m_pText, true)
-   GET_BYTES_TABLE(7, m_pSubject, true)
 
    // pTable->GetField(8, &pEDF);
    // bytesprint("MessageItem::MessageItem EDF field", pEDF);
@@ -88,7 +86,6 @@ MessageItem::~MessageItem()
    // printf("MessageItem::~MessageItem %p(%ld)\n", this, GetID());
 
    delete m_pText;
-   delete m_pSubject;
 }
 
 MessageTreeItem *MessageItem::GetTree()
@@ -243,16 +240,6 @@ bool MessageItem::AddDetail(char *szName, long lUserID, long lDate, bool bParent
    SetChanged(true);
 
    return true;
-}
-
-bytes *MessageItem::GetSubject(bool bCopy)
-{
-   GET_BYTES(m_pSubject)
-}
-
-bool MessageItem::SetSubject(bytes *pSubject)
-{
-   SET_BYTES(m_pSubject, pSubject, UA_SHORTMSG_LEN)
 }
 
 bool MessageItem::AddDelete(long lUserID, long lDate)
@@ -542,7 +529,7 @@ bool MessageItem::WriteFields(EDF *pEDF, int iLevel)
 
    sprintf(szTreeID, "%sid", TreeName());
 
-   debug(DEBUGLEVEL_DEBUG, "MessageItem::WriteFields %p %d, %p %p %p\n", pEDF, iLevel, GetParent(), GetTree(), m_pSubject);
+   debug(DEBUGLEVEL_DEBUG, "MessageItem::WriteFields %p %d, %p %p\n", pEDF, iLevel, GetParent(), GetTree());
 
    if(iLevel == -1)
    {
@@ -599,11 +586,6 @@ bool MessageItem::WriteFields(EDF *pEDF, int iLevel)
       }
    }
 
-   if((mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true || mask(iLevel, MESSAGEITEMWRITE_SUBJECT) == true) && m_pSubject != NULL)
-   {
-      pEDF->AddChild("subject", m_pSubject);
-   }
-
    debug(DEBUGLEVEL_DEBUG, "MessageItem::WriteFields exit true\n");
    return true;
 }
@@ -656,7 +638,6 @@ bool MessageItem::WriteFields(DBTable *pTable, EDF *pEDF)
    pTable->SetField(m_lFromID);
    pTable->SetField(m_lToID);
    pTable->SetField(m_pText);
-   pTable->SetField(m_pSubject);
 
    if(GetType() > 0)
    {
@@ -687,7 +668,6 @@ bool MessageItem::ReadFields(DBTable *pTable)
    pTable->BindColumnInt();
    pTable->BindColumnBytes();
    // pTable->BindColumnBytes();
-   pTable->BindColumnBytes();
 
    return true;
 }
@@ -747,7 +727,6 @@ void MessageItem::init(MessageTreeItem *pTree)
    m_lToID = -1;
    m_pToName = NULL;
    m_pText = NULL;
-   m_pSubject = NULL;
 }
 
 void MessageItem::setup()

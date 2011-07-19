@@ -62,12 +62,12 @@ public:
    EDFElement();
    EDFElement(const char *szName);
    EDFElement(const char *szName, const char *szValue, int iPosition = EDFElement::ABSLAST);
-   EDFElement(const char *szName, bytes *pValue, int iPosition = EDFElement::ABSLAST);
+   EDFElement(const char *szName, const bytes *pValue, int iPosition = EDFElement::ABSLAST);
    EDFElement(const char *szName, const long lValue, int iPosition = EDFElement::ABSLAST);
    EDFElement(const char *szName, const double dValue, int iPosition = EDFElement::ABSLAST);
    EDFElement(EDFElement *pParent, const char *szName, int iPosition = EDFElement::ABSLAST);
    EDFElement(EDFElement *pParent, const char *szName, const char *szValue, int iPosition = EDFElement::ABSLAST);
-   EDFElement(EDFElement *pParent, const char *szName, bytes *pValue, int iPosition = EDFElement::ABSLAST);
+   EDFElement(EDFElement *pParent, const char *szName, const bytes *pValue, int iPosition = EDFElement::ABSLAST);
    EDFElement(EDFElement *pParent, const char *szName, const long lValue, int iPosition = EDFElement::ABSLAST);
    EDFElement(EDFElement *pParent, const char *szName, const double dValue, int iPosition = EDFElement::ABSLAST);
    ~EDFElement();
@@ -82,7 +82,7 @@ public:
    bool set(const char *szName);
    bool setValue(const char *szValue, const bool bLiterals = false, int iOptions = 0);
    bool setValue(const byte *pValue, const long lValueLen, const bool bLiterals = false, int iOptions = 0);
-   bool setValue(bytes *pValue, const bool bLiterals = false, int iOptions = 0);
+   bool setValue(const bytes *pValue, const bool bLiterals = false, int iOptions = 0);
    bool setValue(const long lValue);
    bool setValue(const double dValue);
 
@@ -124,7 +124,7 @@ protected:
 
 private:
    char *m_szName;
-
+	
    char m_vType;
    union
    {
@@ -136,7 +136,7 @@ private:
    bool m_bDelete;
 
    EDFElement *m_pParent;
-
+   
    int m_iNumChildren;
    int m_iMaxChildren;
    EDFElement **m_pChildren;

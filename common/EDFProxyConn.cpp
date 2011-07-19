@@ -1,5 +1,5 @@
 /*
-** EDFProxyConn: EDF over HTML connection class based on EDFConn class
+** ProxyConn: EDF over HTML connection class based on EDFConn class
 ** (c) 2001 Michael Wood (mike@compsoc.man.ac.uk)
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -21,9 +21,9 @@
 #define DOC_BODY 2
 
 // Constructor
-EDFProxyConn::EDFProxyConn(bool bSecure) : EDFConn()
+ProxyConn::ProxyConn(bool bSecure) : EDFConn()
 {
-   debug("EDFProxyConn::EDFProxyConn %s\n", BoolStr(bSecure));
+   debug("ProxyConn::ProxyConn %s\n", BoolStr(bSecure));
 
    m_szServer = NULL;
    m_bSecure = bSecure;
@@ -37,10 +37,10 @@ EDFProxyConn::EDFProxyConn(bool bSecure) : EDFConn()
    m_szCookie = NULL;
 }
 
-EDFProxyConn::~EDFProxyConn()
+ProxyConn::~ProxyConn()
 {
    STACKTRACE
-   debug("EDFProxyConn::~EDFProxyConn\n");
+   debug("ProxyConn::~ProxyConn\n");
 
    DocEnd();
 
@@ -52,15 +52,15 @@ EDFProxyConn::~EDFProxyConn()
    delete[] m_szCookie;
 }
 
-bool EDFProxyConn::Connect(const char *szServer, int iPort, bool bSecure, const char *szCertFile)
+bool ProxyConn::Connect(const char *szServer, int iPort, bool bSecure, const char *szCertFile)
 {
-   debug("EDFProxyConn::Connect\n");
+   debug("ProxyConn::Connect\n");
    return Connect(szServer, iPort, NULL, bSecure, szCertFile);
 }
 
-bool EDFProxyConn::Connect(const char *szServer, int iPort, const char *szURL, bool bSecure, const char *szCertFile)
+bool ProxyConn::Connect(const char *szServer, int iPort, const char *szURL, bool bSecure, const char *szCertFile)
 {
-   debug("EDFProxyConn::Connect %s %d %s %s %s\n", szServer, iPort, szURL, BoolStr(bSecure), szCertFile);
+   debug("ProxyConn::Connect %s %d %s %s %s\n", szServer, iPort, szURL, BoolStr(bSecure), szCertFile);
    m_szServer = strmk(szServer);
    m_iPort = iPort;
    m_bSecure = bSecure;
@@ -71,13 +71,13 @@ bool EDFProxyConn::Connect(const char *szServer, int iPort, const char *szURL, b
    return true;
 }
 
-bool EDFProxyConn::Connected()
+bool ProxyConn::Connected()
 {
-   debug("EDFProxyConn::Connected\n");
+   debug("ProxyConn::Connected\n");
    return Conn::Connected();
 }
 
-bool EDFProxyConn::Disconnect()
+bool ProxyConn::Disconnect()
 {
    DocEnd();
 
@@ -85,7 +85,7 @@ bool EDFProxyConn::Disconnect()
 }
 
 // Read: Read EDF from a socket
-EDF *EDFProxyConn::Read()
+EDF *ProxyConn::Read()
 {
    STACKTRACE
    int iContentHeader = 0, iContentLength = 0;
@@ -99,14 +99,14 @@ EDF *EDFProxyConn::Read()
 
    lCurrLen = ReadBuffer();
 
-   debug("EDFProxyConn::Read entry\n");
+   debug("ProxyConn::Read entry\n");
    bReturn = Conn::Read();
 
    lReadLen = ReadBuffer(&pRead);
 
    if(lReadLen > lCurrLen)
    {
-      debug("EDFProxyConn::Read buffer:\n");
+      debug("ProxyConn::Read buffer:\n");
       memprint(debugfile(), NULL, pRead, lReadLen);
       debug("\n");
 
@@ -128,19 +128,19 @@ EDF *EDFProxyConn::Read()
             {
                m_szCookie = strmk(szCookie, 0, szStr - szCookie);
 
-               debug("EDFProxyConn::Read cookie %s (%p -> %p = %d)\n", m_szCookie, szCookie, szStr, szStr - szCookie);
+               debug("ProxyConn::Read cookie %s (%p -> %p = %d)\n", m_szCookie, szCookie, szStr, szStr - szCookie);
             }
          }
 
          if(szContentLength != NULL)
          {
             iContentHeader = atoi(szContentLength + 16);
-            debug("EDFProxyConn::Read content length(header): %d\n", iContentHeader);
+            debug("ProxyConn::Read content length(header): %d\n", iContentHeader);
 
             szContent += 4;
             lContentPos = szContent - (char *)pRead;
             iContentLength = lReadLen - lContentPos;
-            debug("EDFProxyConn::Read content length: %d (%d -> %d)\n", iContentLength, lContentPos, lReadLen);
+            debug("ProxyConn::Read content length: %d (%d -> %d)\n", iContentLength, lContentPos, lReadLen);
 
             if(iContentLength >= iContentHeader)
             {
@@ -148,7 +148,7 @@ EDF *EDFProxyConn::Read()
                if(szStr != NULL)
                {
                   szStr += 4;
-                  debug("EDFProxyConn::Read EDF string '%s'\n", szStr);
+                  debug("ProxyConn::Read EDF string '%s'\n", szStr);
 
                   iStrLen = strlen(szStr);
                   szEDF = new char[iStrLen + 1];
@@ -200,7 +200,7 @@ EDF *EDFProxyConn::Read()
                   // bDebug = EDF::Debug(true);
                   iDebug = debuglevel(DEBUGLEVEL_DEBUG);
 
-                  debug("EDFProxyConn::Read EDF parse '%s'\n", szEDF);
+                  debug("ProxyConn::Read EDF parse '%s'\n", szEDF);
                   pReturn = new EDF(szEDF);
 
                   // EDF::Debug(bDebug);
@@ -208,7 +208,7 @@ EDF *EDFProxyConn::Read()
 
                   delete[] szEDF;
 
-                  // debugEDFPrint("EDFProxyConn::Read", pReturn);
+                  // debugEDFPrint("ProxyConn::Read", pReturn);
                }
             }
          }
@@ -223,12 +223,12 @@ EDF *EDFProxyConn::Read()
 }
 
 // Write: Write EDF to a socket
-bool EDFProxyConn::Write(const char *szFilename, EDF *pData, bool bRoot, bool bCurr)
+bool ProxyConn::Write(const char *szFilename, EDF *pData, bool bRoot, bool bCurr)
 {
    bool bReturn = false;
    bytes *pWrite = NULL;
 
-   debug("EDFProxyConn::Write entry %p %s %s\n", pData, BoolStr(bRoot), BoolStr(bCurr));
+   debug("ProxyConn::Write entry %p %s %s\n", pData, BoolStr(bRoot), BoolStr(bCurr));
 
    DocStart(DOC_INIT, szFilename);
 
@@ -238,17 +238,17 @@ bool EDFProxyConn::Write(const char *szFilename, EDF *pData, bool bRoot, bool bC
 
    delete pWrite;
 
-   debug("EDFProxyConn::Write exit %s\n", BoolStr(bReturn));
+   debug("ProxyConn::Write exit %s\n", BoolStr(bReturn));
    return bReturn;
 }
 
-bool EDFProxyConn::WriteBody(const char *szText, bool bTranslate)
+bool ProxyConn::WriteBody(const char *szText, bool bTranslate)
 {
    // int iTextPos = 0, iTextLen = 0, iHTMLPos = 0;
    bool bReturn = false;
    char *szHTML = NULL;
 
-   debug("EDFProxyConn::WriteBody '%s' %s\n", szText, BoolStr(bTranslate));
+   debug("ProxyConn::WriteBody '%s' %s\n", szText, BoolStr(bTranslate));
 
    SetContentType("text/html");
 
@@ -295,14 +295,14 @@ bool EDFProxyConn::WriteBody(const char *szText, bool bTranslate)
    return bReturn;
 }
 
-bool EDFProxyConn::SetContentType(const char *szContentType)
+bool ProxyConn::SetContentType(const char *szContentType)
 {
    m_szContentType = strmk(szContentType);
 
    return true;
 }
 
-bool EDFProxyConn::SetCookie(const char *szCookie)
+bool ProxyConn::SetCookie(const char *szCookie)
 {
    delete[] m_szCookie;
 
@@ -311,23 +311,23 @@ bool EDFProxyConn::SetCookie(const char *szCookie)
    return true;
 }
 
-char *EDFProxyConn::GetCookie()
+char *ProxyConn::GetCookie()
 {
    return m_szCookie;
 }
 
 // Create: Override base class creator for Accept call
-Conn *EDFProxyConn::Create(bool bSecure)
+Conn *ProxyConn::Create(bool bSecure)
 {
-   EDFProxyConn *pConn = NULL;
+   ProxyConn *pConn = NULL;
 
-   debug("EDFProxyConn::Create\n");
+   debug("ProxyConn::Create\n");
 
-   pConn = new EDFProxyConn(m_bSecure);
+   pConn = new ProxyConn(m_bSecure);
    return pConn;
 }
 
-bool EDFProxyConn::SetSocket(SOCKET iSocket)
+bool ProxyConn::SetSocket(SOCKET iSocket)
 {
    bool bReturn = false;
 
@@ -341,7 +341,7 @@ bool EDFProxyConn::SetSocket(SOCKET iSocket)
    return bReturn;
 }
 
-bool EDFProxyConn::DocStart(int iDoc, const char *szFilename)
+bool ProxyConn::DocStart(int iDoc, const char *szFilename)
 {
    STACKTRACE
    bool bReturn = false;
@@ -349,7 +349,7 @@ bool EDFProxyConn::DocStart(int iDoc, const char *szFilename)
    time_t tTime = 0;
    struct tm *tmTime = NULL;
 
-   debug("EDFProxyConn::DocStart %d %s, %d\n", iDoc, szFilename, m_iDoc);
+   debug("ProxyConn::DocStart %d %s, %d\n", iDoc, szFilename, m_iDoc);
 
    if(iDoc >= DOC_INIT && m_iDoc == DOC_INIT)
    {
@@ -382,7 +382,7 @@ bool EDFProxyConn::DocStart(int iDoc, const char *szFilename)
 
    if(iDoc >= DOC_HTML && m_iDoc == DOC_HTML)
    {
-      debug("EDFProxyConn::DocStart HMTL\n");
+      debug("ProxyConn::DocStart HMTL\n");
 
       bReturn = Conn::Write("<html>\r\n");
       m_iDoc++;
@@ -390,7 +390,7 @@ bool EDFProxyConn::DocStart(int iDoc, const char *szFilename)
 
    if(iDoc >= DOC_BODY && m_iDoc == DOC_BODY)
    {
-      debug("EDFProxyConn::DocStart body\n");
+      debug("ProxyConn::DocStart body\n");
 
       bReturn = Conn::Write("<body>\r\n");
       m_iDoc++;
@@ -399,22 +399,22 @@ bool EDFProxyConn::DocStart(int iDoc, const char *szFilename)
    return bReturn;
 }
 
-bool EDFProxyConn::DocEnd()
+bool ProxyConn::DocEnd()
 {
    bool bReturn = false;
 
-   debug("EDFProxyConn::DocEnd %d\n", m_iDoc);
+   debug("ProxyConn::DocEnd %d\n", m_iDoc);
 
    if(m_iDoc > DOC_BODY)
    {
-      debug("EDFProxyConn::DocEnd body\n");
+      debug("ProxyConn::DocEnd body\n");
 
       bReturn = Conn::Write("</body>\r\n");
    }
 
    if(m_iDoc > DOC_HTML)
    {
-      debug("EDFProxyConn::DocEnd HTML\n");
+      debug("ProxyConn::DocEnd HTML\n");
 
       bReturn = Conn::Write("</hmtl>\r\n");
    }

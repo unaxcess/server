@@ -17,7 +17,6 @@
 #define _USERITEM_H_
 
 #include "EDFItem.h"
-#include "MessageItem.h"
 
 #define UI_TABLENAME "user_item"
 
@@ -137,11 +136,6 @@ public:
 
    EDF *GetFriends(bool bCreate = false);
 
-   bool AddPage(MessageItem *pPage);
-   bool DeletePage(long lPageID);
-   int GetPageCount();
-   MessageItem *GetPage(int iPageNum);
-
    static bool IsIdle(long lTimeIdle);
    static bool WriteLogin(EDF *pEDF, int iLevel, int iID, int iStatus, bool bSecure, int iRequests, int iAnnounces, long lTimeOn, long lTimeOff, long lTimeBusy, long lTimeIdle, const char *szStatusMsg, bytes *pStatusMsg, const char *szHostname, unsigned long lAddress, const char *szProxy, unsigned long lProxy, const char *szLocation, const char *szClient, const char *szProtocol, long lAttachmentSize, bool bCurrent);
 
@@ -229,8 +223,6 @@ private:
 
    char *m_szWriteStatusMsg;
    char *m_szWriteClient;
-
-   EDFItemList *m_pPages;
 
    static long m_lSystemTimeIdle;
    static UserItem *m_pInit;

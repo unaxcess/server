@@ -293,7 +293,7 @@ bool EDF::Set(const char *szName, const char *szValue)
    return true;
 }
 
-bool EDF::Set(const char *szName, bytes *pValue)
+bool EDF::Set(const char *szName, const bytes *pValue)
 {
    STACKTRACE
    m_pCurr->set(szName);
@@ -350,7 +350,7 @@ bool EDF::Add(const char *szName, const char *szValue, const int iPosition)
    return true;
 }
 
-bool EDF::Add(const char *szName, bytes *pValue, const int iPosition)
+bool EDF::Add(const char *szName, const bytes *pValue, const int iPosition)
 {
    STACKTRACE
 
@@ -663,7 +663,7 @@ bool EDF::SetChild(const char *szName, const char *szValue, int iPosition)
    return true;
 }
 
-bool EDF::SetChild(const char *szName, bytes *pValue, int iPosition)
+bool EDF::SetChild(const char *szName, const bytes *pValue, int iPosition)
 {
    STACKTRACE
    EDFElement *pChild = NULL;
@@ -893,7 +893,7 @@ bool EDF::AddChild(const char *szName, const char *szValue, int iPosition)
    return true;
 }
 
-bool EDF::AddChild(const char *szName, bytes *pValue, int iPosition)
+bool EDF::AddChild(const char *szName, const bytes *pValue, int iPosition)
 {
    STACKTRACE
    EDFElement *pChild = NULL;
