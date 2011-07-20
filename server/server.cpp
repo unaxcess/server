@@ -31,7 +31,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #else
-#include "regex/hsregex.h"
+#include "regex.h"
 #endif
 
 #include "headers.h"
@@ -3536,6 +3536,11 @@ ICELIBFN int ConnectionBackground(EDFConn *pConn, EDF *pData)
             ConnectionAnnounce(pConn, pConnData, pData);
             iNumAnnounces++;
          }
+
+		 if(pConnData->m_pUser == NULL && UserItem::IsIdle(pConnData->m_lTimeOn))
+		 {
+			 ConnectionShut(pConn, pData, 0, 0, NULL, NULL, false);
+		 }
       }
 
       // printf("ConnectionBackground close %s\n", BoolStr(pConnData->m_bClose));
