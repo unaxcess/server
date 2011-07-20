@@ -19,7 +19,7 @@
 // MessageSpec start
 
 // Protocol
-#define PROTOCOL "2.7-beta13"
+#define PROTOCOL "2.9-beta1"
 
 // String lengths (UA_ prefix introduced in v2.4-beta8 due to conflicts with MySQL)
 #define UA_NAME_LEN 20
@@ -162,6 +162,7 @@
 // Message thread operation (mark_read, mark_unread, move, delete) types - added v2.6-beta5
 #define THREAD_MSGCHILD 1
 #define THREAD_CHILD 2
+#define THREAD_SAVE 4 // Added in v2.9-beta1
 
 /*
 ** Channel types (deprecated in v2.4-beta5, see access rights)
