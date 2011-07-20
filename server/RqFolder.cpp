@@ -820,6 +820,10 @@ bool MessageMatchFields(EDF *pIn, ConnData *pConnData)
       {
          bReturn = true;
       }
+	  else if(ConnVersion(pConnData, "2.9") >= 0 && stricmp(szName, "saved") == 0)
+	  {
+		  bReturn = true;
+	  }
 
       delete[] szName;
 
@@ -880,7 +884,7 @@ bool MessageMatchBytes(bytes *pBytes, bytes *pMatch, EDF *pIn, bool bFull)
 }
 
 // MessageMatch: Check message for matching search criteria
-bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, int iDepth = 0)
+bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, DBMessageRead *pReads, int iDepth = 0)
 {
    STACKTRACE
    bool bLoop = false, bReturn = false, bField = false, bName = false;
@@ -914,6 +918,13 @@ bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, int iDepth = 0)
             bField = true;
          }
       }
+	  else if(stricmp(szName, "saved") == 0 && iDepth == 0 && pReads != NULL)
+	  {
+		  if(mask(pReads->Get(pItem->GetID()), THREAD_SAVE) == true)
+		  {
+			  bField = true;
+		  }
+	  }
       else if(stricmp(szName, "noparent") == 0)
       {
          if(pItem->GetParentID() == -1)
@@ -994,23 +1005,23 @@ bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, int iDepth = 0)
       else if(stricmp(szName, "not") == 0)
       {
          // As no op is specified use AND
-         bField = MessageMatch(pItem, pIn, MATCH_NOT | MATCH_AND, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_NOT | MATCH_AND, pReads, iDepth + 1);
       }
       else if(stricmp(szName, "and") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_AND, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_AND, pReads, iDepth + 1);
       }
       else if(stricmp(szName, "or") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_OR, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_OR, pReads, iDepth + 1);
       }
       else if(stricmp(szName, "nand") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_AND | MATCH_NOT, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_AND | MATCH_NOT, pReads, iDepth + 1);
       }
       else if(stricmp(szName, "nor") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_OR | MATCH_NOT, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_OR | MATCH_NOT, pReads, iDepth + 1);
       }
       else
       {
@@ -1638,7 +1649,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
 
          // printf("MessageMarking %ld(%s) / %ld / %ld / %d", pUser->GetID(), pUser->GetName(), pFolderMessage->GetID(), pFolderMessage->GetParentID(), iMarkType);
 
-         if(iMarkType == MARKTYPE_MSGCHILD || iMarkType == MARKTYPE_CHILD)
+         if(mask(iMarkType, THREAD_MSGCHILD) == true || mask(iMarkType, THREAD_CHILD) == true)
          {
             // Stay caught up
             pParent = (FolderMessageItem *)pItem->GetParent();
@@ -1647,7 +1658,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                // Parent must be same folder or...
                if(pParent->GetTreeID() == pItem->GetTreeID())
                {
-                  iReturn = MessageMark(pItem, true, pUser, pReads, MARKTYPE_MSGCHILD);
+                  iReturn = MessageMark(pItem, true, pUser, pReads, THREAD_MSGCHILD);
                }
                else
                {
@@ -1655,7 +1666,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                   pParentFolder = pParent->GetTree();
                   if(pParentFolder->GetReplyID() == pItem->GetTreeID())
                   {
-                     iReturn = MessageMark(pItem, true, pUser, pReads, MARKTYPE_MSGCHILD);
+                     iReturn = MessageMark(pItem, true, pUser, pReads, THREAD_MSGCHILD);
                   }
                   else
                   {
@@ -1683,7 +1694,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                {
                   // EDFParser::debugPrint("MessageMarking rule", pRules, EDFElement::EL_CURR + EDFElement::PR_SPACE);
 
-                  if(MessageMatch(pItem, pRules, MATCH_AND) == true)
+                  if(MessageMatch(pItem, pRules, MATCH_AND, NULL) == true)
                   {
                      iMarkType = 0;
                      pRules->GetChild("marktype", &iMarkType);
@@ -1955,7 +1966,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
             STACKTRACEUPDATE
 
             // Any folder or only messages in required folder
-            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp) == true)
+            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp, NULL) == true)
             {
                if(iNumMsgs != NULL)
                {
@@ -2338,7 +2349,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
       pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetID() : -1, iFolderID, pFolder1, pFolder1 != NULL ? pFolder1->GetID() : -1, pFolder2, pFolder2 != NULL ? pFolder2->GetID() : -1,
                   iUserID, iAccessLevel, pConnData, pFolders, pReads, pOut);
 
-   if(pFolderMessage != NULL && iType != THREAD_CHILD)
+   if(pFolderMessage != NULL && mask(iType, THREAD_CHILD) == false)
    {
       // debug("MessageThread folder %d %d\n", iFolderID, pFolderMessage->GetTreeID());
 
@@ -2365,7 +2376,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
       
       // debug("MessageThreadAction check point 1\n");
 
-      if(bCheck == true && (bMatchFields == false || MessageMatch(pFolderMessage, pIn, MATCH_AND) == true))
+      if(bCheck == true && (bMatchFields == false || MessageMatch(pFolderMessage, pIn, MATCH_AND, NULL) == true))
       {
          // printf("MessageThread matched %ld\n", pFolderMessage->GetID());
 
@@ -2459,7 +2470,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
    
    // debug("MessageThreadAction check point 2 %p %p\n", pFolderMessage, pFolder1);
 
-   if(iType == THREAD_MSGCHILD || iType == THREAD_CHILD)
+   if(mask(iType, THREAD_MSGCHILD) == true || mask(iType, THREAD_CHILD) == true)
    {
       // Children depend on input folder / message
       if(pFolderMessage != NULL)
@@ -2486,7 +2497,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
             pChild = (FolderMessageItem *)pFolder1->MessageChild(iChildNum);
          }
 
-         if(iType == THREAD_CHILD || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
+         if(mask(iType, THREAD_CHILD) == true || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
          {
             iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pOut);
          }
@@ -2941,14 +2952,14 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       if(szTypeField != NULL)
       {
          pIn->GetChild(szTypeField, &iType);
-         if(iType < 0 || iType > THREAD_CHILD)
+         if(iType < 0 || iType > THREAD_SAVE)
          {
             iType = 0;
          }
          pOut->AddChild(szTypeField, iType);
       }
 
-      if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 && iType >= THREAD_MSGCHILD)
+      if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 && (mask(iType, THREAD_CHILD) == true || mask(iType, THREAD_MSGCHILD) == true))
       {
          if(pIn->GetChildBool("markkeep") == true)
          {
@@ -3075,7 +3086,7 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 /*
 ** MessageList: Generate a list of messages
 **
-** folderid(required): ID of the folder to list
+** folderid: ID of the folder to list
 ** searchtype: Type of list to generate
 **              0(default) - low details (ID, subject, read status)
 **              1 - high details (complete except for message text)
@@ -3087,9 +3098,10 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 ** enddate: Search for messages before this date
 ** messageid: Search for this message only (other search fields ignored)
 ** markread: Whether to mark messages as read (for messageid only, default is true)
+** saved: Search for saved messages only
 **
+** At least one of folderid, messageid or search fields must be specified.
 ** The search fields can be combined
-
 */
 ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 {
