@@ -1056,6 +1056,7 @@ ConnData *ConnectionSetup(EDFConn *pConn, EDF *pData, int iAttempts)
 
    pConnData->m_pFolders = NULL;
    pConnData->m_pReads = NULL;
+   pConnData->m_pSaves = NULL;
 
    pConnData->m_pChannels = NULL;
    pConnData->m_pServices = NULL;
@@ -1398,18 +1399,23 @@ bool ConnectionShut(EDFConn *pConn, EDF *pData, int iType, int iID, UserItem *pC
          {
             debug("ConnectionShut storing message read list\n");
             pShutData->m_pReads->Write();
-            debug("ConnectionShut message read list stored\n");
+            debug("ConnectionShut storing message save list\n");
+            pShutData->m_pSaves->Write();
          }
          else
          {
             pShutData->m_pReads->SetChanged(false);
+            pShutData->m_pSaves->SetChanged(false);
          }
          if(bConnDataDelete == true)
          {
-            debug("ConnectionShut deleting message reads\n");
+            debug("ConnectionShut deleting message read list\n");
             delete pShutData->m_pReads;
+            debug("ConnectionShut deleting message save list\n");
+            delete pShutData->m_pSaves;
          }
          pShutData->m_pReads = NULL;
+         pShutData->m_pSaves = NULL;
 
          if(mask(pItem->GetUserType(), USERTYPE_TEMP) == false)
          {
@@ -2499,8 +2505,11 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
                      debug("ServerLoad reading folder subs\n");
                      pListData->m_pFolders = new DBSub(MessageTreeSubTable(RFG_FOLDER), MessageTreeID(RFG_FOLDER), iUserID);
 
-                     debug("ServerLoad reading message reads\n");
+                     debug("ServerLoad reading message read list\n");
                      pListData->m_pReads = new DBMessageRead(iUserID);
+
+                     debug("ServerLoad reading message save list\n");
+                     pListData->m_pSaves = new DBMessageSave(iUserID);
 
                      debug("ServerLoad reading channel subs\n");
                      pListData->m_pChannels = new DBSub(pData, "channel", MessageTreeSubTable(RFG_CHANNEL), MessageTreeID(RFG_CHANNEL), iUserID);
@@ -2999,11 +3008,17 @@ ICELIBFN bool ServerUnload(EDF *pData, int iOptions)
                delete pListData->m_pFolders;
                pListData->m_pFolders = NULL;
 
-               debug("ServerUnload writing message reads %p\n", pListData->m_pReads);
+               debug("ServerUnload writing message read list %p\n", pListData->m_pReads);
                pListData->m_pReads->Write(true);
-               debug("ServerUnload deleting message reads\n");
+               debug("ServerUnload deleting message read list\n");
                delete pListData->m_pReads;
                pListData->m_pReads = NULL;
+
+               debug("ServerUnload writing message save list %p\n", pListData->m_pSaves);
+               pListData->m_pSaves->Write(true);
+               debug("ServerUnload deleting message save list\n");
+               delete pListData->m_pSaves;
+               pListData->m_pSaves = NULL;
             }
 
             // printf("ServerUnload writing channels %p\n", pListData->m_pChannels);
@@ -3210,6 +3225,7 @@ ICELIBFN int ServerBackground(EDF *pData)
       // Just in case
       DBTable::Unlock();
       DBTable::Lock(FM_READ_TABLE);
+      DBTable::Lock(FM_SAVE_TABLE);
       DBTable::Lock(MessageTreeSubTable(RFG_FOLDER));
       DBTable::Lock(MessageTreeSubTable(RFG_CHANNEL));
 
@@ -3229,6 +3245,11 @@ ICELIBFN int ServerBackground(EDF *pData)
          if(pListData->m_pReads != NULL)
          {
             lSingleTime += pListData->m_pReads->Write(false);
+         }
+
+         if(pListData->m_pSaves != NULL)
+         {
+            lSingleTime += pListData->m_pSaves->Write(false);
          }
 
          if(pListData->m_pChannels != NULL)

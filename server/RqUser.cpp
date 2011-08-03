@@ -2593,6 +2593,7 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
             pConnData->m_pFolders = pItemData->m_pFolders;
             pConnData->m_pReads = pItemData->m_pReads;
+			pConnData->m_pSaves = pItemData->m_pSaves;
          }
       }
    }
@@ -2601,10 +2602,15 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    {
       debug("UserLogin creating new folder sub data\n");
       pConnData->m_pFolders = new DBSub(MessageTreeSubTable(RFG_FOLDER), MessageTreeID(RFG_FOLDER), pCurr->GetID());
-      pConnData->m_pReads = new DBMessageRead(pCurr->GetID());
+
+      debug("UserLogin creating new message read list\n");
+	  pConnData->m_pReads = new DBMessageRead(pCurr->GetID());
+
+      debug("UserLogin creating new message save list\n");
+	  pConnData->m_pSaves = new DBMessageSave(pCurr->GetID());
    }
    
-   debug("UserLogin %d folders, %d reads\n", pConnData->m_pFolders->Count(), pConnData->m_pReads->Count());
+   debug("UserLogin %d folders, %d reads, %d saves\n", pConnData->m_pFolders->Count(), pConnData->m_pReads->Count(), pConnData->m_pSaves->Count());
 
    debug("UserLogin creating new channel data\n");
    // iDebug = debuglevel(DEBUGLEVEL_DEBUG);
@@ -2619,7 +2625,7 @@ ICELIBFN bool UserLogin(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       pCurr->SetAccessLevel(LEVEL_MESSAGES);
    } */
 
-   debug("UserLogin conn data %d folders, %d reads, %d channels, %d services\n", pConnData->m_pFolders->Count(), pConnData->m_pReads->Count(), pConnData->m_pChannels->Count(), pConnData->m_pServices->Count());
+   debug("UserLogin conn data %d folders, %d reads, %d saves, %d channels, %d services\n", pConnData->m_pFolders->Count(), pConnData->m_pReads->Count(), pConnData->m_pSaves->Count(), pConnData->m_pChannels->Count(), pConnData->m_pServices->Count());
 
    UserItemList(pOut, pCurr, EDFITEMWRITE_ADMIN + EDFITEMWRITE_FLAT + USERITEMWRITE_DETAILS + USERITEMWRITE_SELF + ULS_FULL, USERITEMWRITE_LOGIN, NULL, 0, pConnData->m_pFolders, pConnData->m_pChannels, pConnData->m_pServices, pConn, 0);
    // EDFPrint("UserLogin list single", pOut);
