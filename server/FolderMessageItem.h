@@ -120,7 +120,9 @@ public:
 
    bool SetExpire(long lTime);
 
+	long GetThreadID();
 
+	bool SetThreadID(long lThreadID);
 
    static FolderMessageItem *NextRow(DBTable *pTable, FolderMessageItem *pParent, MessageTreeItem *pTree);
 

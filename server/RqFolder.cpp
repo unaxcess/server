@@ -884,7 +884,7 @@ bool MessageMatchBytes(bytes *pBytes, bytes *pMatch, EDF *pIn, bool bFull)
 }
 
 // MessageMatch: Check message for matching search criteria
-bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, DBMessageRead *pReads, int iDepth = 0)
+bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, int iDepth = 0)
 {
    STACKTRACE
    bool bLoop = false, bReturn = false, bField = false, bName = false;
@@ -918,13 +918,6 @@ bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, DBMessageRead *pR
             bField = true;
          }
       }
-	  else if(stricmp(szName, "saved") == 0 && iDepth == 0 && pReads != NULL)
-	  {
-		  if(mask(pReads->Get(pItem->GetID()), THREAD_SAVE) == true)
-		  {
-			  bField = true;
-		  }
-	  }
       else if(stricmp(szName, "noparent") == 0)
       {
          if(pItem->GetParentID() == -1)
@@ -1005,23 +998,23 @@ bool MessageMatch(FolderMessageItem *pItem, EDF *pIn, int iOp, DBMessageRead *pR
       else if(stricmp(szName, "not") == 0)
       {
          // As no op is specified use AND
-         bField = MessageMatch(pItem, pIn, MATCH_NOT | MATCH_AND, pReads, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_NOT | MATCH_AND, iDepth + 1);
       }
       else if(stricmp(szName, "and") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_AND, pReads, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_AND, iDepth + 1);
       }
       else if(stricmp(szName, "or") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_OR, pReads, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_OR, iDepth + 1);
       }
       else if(stricmp(szName, "nand") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_AND | MATCH_NOT, pReads, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_AND | MATCH_NOT, iDepth + 1);
       }
       else if(stricmp(szName, "nor") == 0)
       {
-         bField = MessageMatch(pItem, pIn, MATCH_OR | MATCH_NOT, pReads, iDepth + 1);
+         bField = MessageMatch(pItem, pIn, MATCH_OR | MATCH_NOT, iDepth + 1);
       }
       else
       {
@@ -1694,7 +1687,7 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
                {
                   // EDFParser::debugPrint("MessageMarking rule", pRules, EDFElement::EL_CURR + EDFElement::PR_SPACE);
 
-                  if(MessageMatch(pItem, pRules, MATCH_AND, NULL) == true)
+                  if(MessageMatch(pItem, pRules, MATCH_AND) == true)
                   {
                      iMarkType = 0;
                      pRules->GetChild("marktype", &iMarkType);
@@ -1903,7 +1896,7 @@ void FolderMessageItemListReply(EDF *pOut, char *szType, int iMessageID, int iDa
 /*
 ** FolderMessageItemList: Insert message item into EDF hierarchy
 */
-bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int iBase, MessageTreeItem *pFolder, int iTree, int iUserID, int iAccessLevel, int iSubType, bool bArchive, bool bMarkRead, ConnData *pConnData, DBSub *pFolders, DBMessageRead *pReads, EDF *pIn, int iDefOp, int iAttachmentID, int *iMinID, int *iMaxID, int *iNumMsgs)
+bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int iBase, MessageTreeItem *pFolder, int iTree, int iUserID, int iAccessLevel, int iSubType, bool bArchive, bool bMarkRead, bool bSaved, ConnData *pConnData, DBSub *pFolders, DBMessageRead *pReads, DBMessageSave *pSaves, EDF *pIn, int iDefOp, int iAttachmentID, int *iMinID, int *iMaxID, int *iNumMsgs)
 {
    STACKTRACE
    int iChildNum = 0, iNumChildren = 0, iAllReplies = 0, iNumReplies = 0, iFolderID = -1, iHiddenID = 0, iHiddenReplies = 0;
@@ -1916,9 +1909,9 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
    DBTable *pTable = NULL;
    UserItem *pUser = pConnData->m_pUser;
 
-   debug(DEBUGLEVEL_DEBUG, "FolderMessageItemList l=%d i=%p(%d) b=%d f=%p(%s) t=%d u=%d a=%d s=%d m=%s a=%s d=%p f=%p r=%p i=%p a=%d m=%p m=%p\n",
+   debug(DEBUGLEVEL_DEBUG, "FolderMessageItemList l=%d i=%p(%d) b=%d f=%p(%s) t=%d u=%d a=%d s=%d m=%s a=%s d=%p f=%p r=%p s=%p i=%p a=%d m=%p m=%p\n",
       iLevel, pItem, pItem != NULL ? pItem->GetID() : -1, iBase, pFolder, pFolder != NULL ? pFolder->GetName(false) : NULL, iTree,
-      iUserID, iAccessLevel, iSubType, BoolStr(bArchive), BoolStr(bMarkRead), pConnData, pFolders, pReads, pIn, iAttachmentID, iMinID, iMaxID);
+      iUserID, iAccessLevel, iSubType, BoolStr(bArchive), BoolStr(bMarkRead), pConnData, pFolders, pReads, pSaves, pIn, iAttachmentID, iMinID, iMaxID);
 
    STACKTRACEUPDATE
 
@@ -1966,7 +1959,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
             STACKTRACEUPDATE
 
             // Any folder or only messages in required folder
-            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp, NULL) == true)
+            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp) == true || (bSaved == true && pSaves->IsSaved(pItem->GetID()) == true))
             {
                if(iNumMsgs != NULL)
                {
@@ -2058,6 +2051,14 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
                         // DBMessageRead::Debug(bDebug);
                      }
                   }
+
+				  if(pSaves != NULL)
+				  {
+					  if(pSaves->IsSaved(pItem->GetID()) == true)
+					  {
+						  pOut->AddChild("saved", true);
+					  }
+				  }
 
                   // printf("MessageListSingle %d children in message\n", pItem->Count());
                }
@@ -2248,7 +2249,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
          {
             pChild = (FolderMessageItem *)pItem->Child(iChildNum);
             debug(DEBUGLEVEL_DEBUG, "FolderMessageItemList child %d %p\n", iChildNum, pChild);
-            FolderMessageItemList(pOut, iLevel, pChild, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, pConnData, pFolders, pReads, pIn, iDefOp, iAttachmentID, iMinID, iMaxID, iNumMsgs);
+            FolderMessageItemList(pOut, iLevel, pChild, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, iMinID, iMaxID, iNumMsgs);
          }
       }
 
@@ -2266,7 +2267,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
       {
          pChild = (FolderMessageItem *)pFolder->MessageChild(iChildNum);
          debug(DEBUGLEVEL_DEBUG, "FolderMessageItemList child %d %p\n", iChildNum, pChild);
-         FolderMessageItemList(pOut, iLevel, pChild, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, pConnData, pFolders, pReads, pIn, iDefOp, iAttachmentID, iMinID, iMaxID, iNumMsgs);
+         FolderMessageItemList(pOut, iLevel, pChild, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, iMinID, iMaxID, iNumMsgs);
       }
    }
 
@@ -2274,7 +2275,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
 }
 
 bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderCheck,
-                       ConnData *pConnData, EDF *pIn, int iDefOp, EDF *pOut, int iBase, int iLevel, int iTree, bool bArchive, bool bMarkRead,
+                       ConnData *pConnData, EDF *pIn, int iDefOp, EDF *pOut, int iBase, int iLevel, int iTree, bool bArchive, bool bMarkRead, bool bSaved,
                        int *iMinID, int *iMaxID, int *iNumMsgs, MessageTreeItem **pReturn)
 {
    STACKTRACE
@@ -2282,6 +2283,7 @@ bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderChec
    int iUserID = 0, iAccessLevel = 0, iSubType = 0;
    DBSub *pFolders = NULL;
    DBMessageRead *pReads = NULL;
+   DBMessageSave *pSaves = NULL;
    UserItem *pCurr = NULL;
 
    if(pConnData != NULL)
@@ -2294,6 +2296,7 @@ bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderChec
       }
       pFolders = pConnData->m_pFolders;
       pReads = pConnData->m_pReads;
+	  pSaves = pConnData->m_pSaves;
    }
 
    if(bFolderCheck == true)
@@ -2322,7 +2325,7 @@ bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderChec
 
    // debug("MessageListFolder %p(%d %d)\n", pCurr, iUserID, iAccessLevel);
 
-   bReturn = FolderMessageItemList(pOut, iLevel, NULL, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, pConnData, pFolders, pReads, pIn, iDefOp, -1, iMinID, iMaxID, iNumMsgs);
+   bReturn = FolderMessageItemList(pOut, iLevel, NULL, iBase, pFolder, iTree, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, -1, iMinID, iMaxID, iNumMsgs);
 
    return bReturn;
 }
@@ -2334,9 +2337,9 @@ bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderChec
 ** 1 - This message and children
 ** 2 - Only children
 */
-int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThread, EDF *pIn, bool bMatchFields,
+int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThread, EDF *pIn, bool bMatchFields, bool bSaved,
                   FolderMessageItem *pFolderMessage, int iFolderID, MessageTreeItem *pFolder1, MessageTreeItem *pFolder2,
-                  int iUserID, int iAccessLevel, ConnData *pConnData, DBSub *pFolders, DBMessageRead *pReads, EDF *pOut)
+                  int iUserID, int iAccessLevel, ConnData *pConnData, DBSub *pFolders, DBMessageRead *pReads, DBMessageSave *pSaves, EDF *pOut)
 {
    int iChildNum = 0, iNumChildren = 0, iReturn = 0;;//, iDebug = 0;
    bool bCheck = true, bChange = false;
@@ -2344,10 +2347,10 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
    MessageTreeItem *pParentTree = NULL;
 
    // debug("MessageThread entry %s %d %s\n", szRequest, iType, BoolStr(bCrossFolder));
-   debug("MessageThreadAction r=%s ty=%d cf=%s th=%d i=%p mf=%s fm=%p(%ld) fid=%d f1=%p(%ld) f2=%p(%ld) uid=%d al=%d cd=%p f=%p r=%p o=%p\n",
+   debug("MessageThreadAction r=%s ty=%d cf=%s th=%d i=%p mf=%s fm=%p(%ld) fid=%d f1=%p(%ld) f2=%p(%ld) uid=%d al=%d cd=%p f=%p r=%p s=%p o=%p\n",
       szRequest, iType, BoolStr(bCrossFolder), iThread, pIn, BoolStr(bMatchFields),
       pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetID() : -1, iFolderID, pFolder1, pFolder1 != NULL ? pFolder1->GetID() : -1, pFolder2, pFolder2 != NULL ? pFolder2->GetID() : -1,
-                  iUserID, iAccessLevel, pConnData, pFolders, pReads, pOut);
+                  iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
 
    if(pFolderMessage != NULL && mask(iType, THREAD_CHILD) == false)
    {
@@ -2499,7 +2502,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
 
          if(mask(iType, THREAD_CHILD) == true || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
          {
-            iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pOut);
+            iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, bSaved, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
          }
          /* else
          {
@@ -2541,7 +2544,7 @@ int MessageArchive(EDF *pOut, int iLevel, int iBase, int iUserID, int iAccessLev
             if(pFolderMessage != NULL)
             {
                debug("MessageArchive folder message %p\n", pFolderMessage);
-               FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, NULL, FMIL_SINGLE, iUserID, iAccessLevel, 0, false, false, pConnData, pFolders, NULL, NULL, 0, 0, NULL, NULL, NULL);
+               FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, NULL, FMIL_SINGLE, iUserID, iAccessLevel, 0, false, false, false, pConnData, pFolders, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL);
 
                delete pFolderMessage;
 
@@ -2802,13 +2805,14 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 ** fromid:        ID of user to mark from
 ** crossfolder:   Also move messages in other folders from messageid (default is false)
 ** markkeep:      Mark subsequent children as read (mark_read from marktype 1 and 2)
+** saved:         Whether to save the message
 */
 ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 {
    STACKTRACE
    int iBase = RequestGroup(pIn), iAccessLevel = LEVEL_NONE, iMessageID = -1, iFolderID = -1, iType = 0, iMoveID = -1, iNumMsgs = 0, iActionID = -1, iThread = 0, iSubType = 0;
    // int iTreeAccess = 0;
-   bool bMessageID = false, bCrossFolder = false, bMatchFields = false, bAnnounce = true, bTypeField = false;
+   bool bMessageID = false, bCrossFolder = false, bMatchFields = false, bSaved = false, bAnnounce = true, bTypeField = false;
    char *szRequest = NULL, *szTypeField = NULL;
    EDF *pAnnounce = NULL, *pAdmin = NULL;
    ConnData *pConnData = CONNDATA;
@@ -2817,6 +2821,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    MessageTreeItem *pFolder1 = NULL, *pFolder2 = NULL, *pTemp = NULL;
    FolderMessageItem *pFolderMessage = NULL;
    DBMessageRead *pReads = CONNREADS;
+   DBMessageSave *pSaves = CONNSAVES;
 
    pIn->Get(NULL, &szRequest);
 
@@ -2859,6 +2864,11 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
       iType = THREAD_CHILD;
    }
+   else if(bMessageID == true && stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0)
+	{
+		bSaved = pIn->GetChildBool("saved");
+	}
+
 
    if(stricmp(szRequest, MSG_MESSAGE_MOVE) == 0 && pIn->GetChild("moveid", &iMoveID) == false)
    {
@@ -2952,7 +2962,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       if(szTypeField != NULL)
       {
          pIn->GetChild(szTypeField, &iType);
-         if(iType < 0 || iType > THREAD_SAVE)
+         if(iType < 0 || iType > THREAD_CHILD)
          {
             iType = 0;
          }
@@ -2964,9 +2974,9 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          if(pIn->GetChildBool("markkeep") == true)
          {
             pOut->AddChild("markkeep", true);
+		 }
 
-            iThread = iType;
-         }
+         iThread = iType;
       }
    }
    
@@ -2988,7 +2998,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    }
    debug(" %p %p\n", pFolder1, pFolder2);
 
-   iNumMsgs = MessageThreadAction(szRequest, iType, bCrossFolder, iThread, pIn, bMatchFields, pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetTreeID() : iFolderID, pFolder1, pFolder2, pCurr->GetID(), iAccessLevel, pConnData, pFolders, pReads, pOut);
+   iNumMsgs = MessageThreadAction(szRequest, iType, bCrossFolder, iThread, pIn, bMatchFields, bSaved, pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetTreeID() : iFolderID, pFolder1, pFolder2, pCurr->GetID(), iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
 
    if(iMessageID != -1)
    {
@@ -3108,13 +3118,14 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    STACKTRACE
    int iBase = RequestGroup(pIn), iFolderID = -1, iID = 0, iType = 0, iLevel = 0, iUserID = -1, iAccessLevel = LEVEL_NONE, iNumMsgs = 0;
    int iTree = 0, iSubType = SUBTYPE_SUB, iAttachmentID = -1, iFolderNum = 0, iMinID = -1, iMaxID = -1, iDebug = 0, iDefOp = MATCH_AND;
-   bool bArchive = false, bNoPrivate = false, bMarkRead = true; //, bLoop = true, bCheck = false;
+   bool bArchive = false, bNoPrivate = false, bMarkRead = true, bSaved = false; //, bLoop = true, bCheck = false;
    double dEntry = gettick();
    MessageTreeItem *pFolder = NULL;
    FolderMessageItem *pFolderMessage = NULL;
    ConnData *pConnData = CONNDATA;
    UserItem *pCurr = CONNUSER;
    DBMessageRead *pReads = CONNREADS;
+   DBMessageSave *pSaves = CONNSAVES;
    DBSub *pFolders = CONNFOLDERS;
 
    if(pCurr != NULL)
@@ -3181,7 +3192,7 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       }
 
       bMarkRead = pIn->GetChildBool("markread", true);
-      FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_SINGLE, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, pConnData, pFolders, pReads, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
+      FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_SINGLE, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
 
       if(bArchive == true)
       {
@@ -3205,6 +3216,8 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       {
          iTree = FMIL_FOLDER;
       }
+
+	  bSaved = pIn->IsChild("saved");
 
       if(iBase == RFG_MESSAGE || iBase == RFG_CONTENT)
       {
@@ -3257,7 +3270,7 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          if(iBase == RFG_BULLETIN)
          {
             // Bulletins
-            MessageListFolder(g_pBulletinList, -1, false, pConnData, pIn, MATCH_AND, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, &iMinID, &iMaxID, NULL, NULL);
+            MessageListFolder(g_pBulletinList, -1, false, pConnData, pIn, MATCH_AND, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, bSaved, &iMinID, &iMaxID, NULL, NULL);
          }
          else if(iFolderID != -1)
          {
@@ -3269,7 +3282,7 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
             // Messages in single folder
             // iDebug = debuglevel(DEBUGLEVEL_DEBUG);
-            MessageListFolder(NULL, iFolderID, true, pConnData, pIn, iDefOp, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, &iMinID, &iMaxID, NULL, &pFolder);
+            MessageListFolder(NULL, iFolderID, true, pConnData, pIn, iDefOp, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, bSaved, &iMinID, &iMaxID, NULL, &pFolder);
             // debuglevel(iDebug);
          }
          else
@@ -3282,7 +3295,7 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
                pFolder = FolderList(iFolderNum, false);
                if(bNoPrivate == false || mask(pFolder->GetAccessMode(), ACCMODE_PRIVATE) == false)
                {
-                  MessageListFolder(pFolder, -1, true, pConnData, pIn, MATCH_AND, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, &iMinID, &iMaxID, &iNumMsgs, NULL);
+                  MessageListFolder(pFolder, -1, true, pConnData, pIn, MATCH_AND, pOut, iBase, iLevel, iTree, bArchive, bMarkRead, bSaved, &iMinID, &iMaxID, &iNumMsgs, NULL);
                }
                pFolder = NULL;
             }

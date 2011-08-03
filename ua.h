@@ -162,7 +162,6 @@
 // Message thread operation (mark_read, mark_unread, move, delete) types - added v2.6-beta5
 #define THREAD_MSGCHILD 1
 #define THREAD_CHILD 2
-#define THREAD_SAVE 4 // Added in v2.9-beta1
 
 /*
 ** Channel types (deprecated in v2.4-beta5, see access rights)
@@ -274,7 +273,7 @@
 #define MSG_MESSAGE_MARK_READ "message_mark_read"
 #define MSG_MESSAGE_MARK_UNREAD "message_mark_unread"
 #define MSG_MESSAGE_VOTE "message_vote"
-#define MSG_CONTENT_ADD "content_add" //Added in v2.7-alpha
+#define MSG_CONTENT_ADD "content_add" // Added in v2.7-alpha
 #define MSG_CONTENT_DELETE "content_delete" // Added in v2.7-alpha
 #define MSG_CONTENT_EDIT "content_edit" // Added in v2.7-alpha
 #define MSG_CONTENT_LIST "content_list" // Added in v2.7-alpha

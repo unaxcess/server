@@ -21,6 +21,7 @@
 
 #include "DBSub.h"
 #include "DBMessageRead.h"
+#include "DBMessageSave.h"
 
 #define SERVER_NAME "UNaXcess"
 #define VERSION PROTOCOL
@@ -28,6 +29,7 @@
 #define CONNDATA ((ConnData *)pConn->Data())
 #define CONNUSER (CONNDATA != NULL ? CONNDATA->m_pUser : NULL)
 #define CONNREADS (CONNDATA != NULL ? CONNDATA->m_pReads : NULL)
+#define CONNSAVES (CONNDATA != NULL ? CONNDATA->m_pSaves : NULL)
 #define CONNFOLDERS (CONNDATA != NULL ? CONNDATA->m_pFolders : NULL)
 #define CONNCHANNELS (CONNDATA != NULL ? CONNDATA->m_pChannels : NULL)
 #define CONNSERVICES (CONNDATA != NULL ? CONNDATA->m_pServices : NULL)
@@ -84,6 +86,7 @@ struct ConnData
 
    DBSub *m_pFolders;
    DBMessageRead *m_pReads;
+   DBMessageSave *m_pSaves;
 
    DBSub *m_pChannels;
    DBSub *m_pServices;

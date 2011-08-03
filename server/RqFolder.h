@@ -18,6 +18,7 @@
 
 #include "MessageItem.h"
 #include "DBMessageRead.h"
+#include "DBMessageSave.h"
 
 // Internal functions
 bool FolderReadDB(EDF *pData);
