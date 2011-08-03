@@ -1959,7 +1959,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
             STACKTRACEUPDATE
 
             // Any folder or only messages in required folder
-            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp) == true || (bSaved == true && pSaves->IsSaved(pItem->GetID()) == true))
+            if(iTree != FMIL_SEARCH || MessageMatch(pItem, pIn, iDefOp) == true || (bSaved == true && pSaves != NULL && pSaves->IsSaved(pItem->GetID()) == true))
             {
                if(iNumMsgs != NULL)
                {
@@ -2336,8 +2336,12 @@ bool MessageListFolder(MessageTreeItem *pFolder, int iFolderID, bool bFolderChec
 ** 0 - This message only
 ** 1 - This message and children
 ** 2 - Only children
+** Possible iSaved values:
+**  0 - Not specified
+**  1 - Mark as saved
+** -1 - Mark as unsaved
 */
-int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThread, EDF *pIn, bool bMatchFields, bool bSaved,
+int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThread, EDF *pIn, bool bMatchFields, int iSaved,
                   FolderMessageItem *pFolderMessage, int iFolderID, MessageTreeItem *pFolder1, MessageTreeItem *pFolder2,
                   int iUserID, int iAccessLevel, ConnData *pConnData, DBSub *pFolders, DBMessageRead *pReads, DBMessageSave *pSaves, EDF *pOut)
 {
@@ -2502,7 +2506,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
 
          if(mask(iType, THREAD_CHILD) == true || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
          {
-            iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, bSaved, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
+            iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, iSaved, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
          }
          /* else
          {
@@ -2810,9 +2814,9 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 {
    STACKTRACE
-   int iBase = RequestGroup(pIn), iAccessLevel = LEVEL_NONE, iMessageID = -1, iFolderID = -1, iType = 0, iMoveID = -1, iNumMsgs = 0, iActionID = -1, iThread = 0, iSubType = 0;
+   int iBase = RequestGroup(pIn), iAccessLevel = LEVEL_NONE, iMessageID = -1, iFolderID = -1, iType = 0, iMoveID = -1, iNumMsgs = 0, iActionID = -1, iThread = 0, iSubType = 0, iSaved = 0;
    // int iTreeAccess = 0;
-   bool bMessageID = false, bCrossFolder = false, bMatchFields = false, bSaved = false, bAnnounce = true, bTypeField = false;
+   bool bMessageID = false, bCrossFolder = false, bMatchFields = false, bAnnounce = true, bTypeField = false;
    char *szRequest = NULL, *szTypeField = NULL;
    EDF *pAnnounce = NULL, *pAdmin = NULL;
    ConnData *pConnData = CONNDATA;
@@ -2864,11 +2868,6 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
       iType = THREAD_CHILD;
    }
-   else if(bMessageID == true && stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0)
-	{
-		bSaved = pIn->GetChildBool("saved");
-	}
-
 
    if(stricmp(szRequest, MSG_MESSAGE_MOVE) == 0 && pIn->GetChild("moveid", &iMoveID) == false)
    {
@@ -2877,6 +2876,11 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       debug("MessageThread %s exit false, %s\n", szRequest, MSG_FOLDER_NOT_EXIST);
       delete[] szRequest;
       return false;
+   }
+
+   if((stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 || stricmp(szRequest, MSG_MESSAGE_MARK_UNREAD) == 0) && pIn->IsChild("saved") == true)
+   {
+	   iSaved = pIn->GetChildBool("saved") == true ? 1 : -1;
    }
 
    if(iMessageID != -1 && MessageTreeAccess(iBase, MTA_MESSAGE_READ, iMessageID, pCurr, pFolders, pOut, &pTemp, (MessageItem **)&pFolderMessage, &iSubType) == false)
@@ -2998,7 +3002,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    }
    debug(" %p %p\n", pFolder1, pFolder2);
 
-   iNumMsgs = MessageThreadAction(szRequest, iType, bCrossFolder, iThread, pIn, bMatchFields, bSaved, pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetTreeID() : iFolderID, pFolder1, pFolder2, pCurr->GetID(), iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
+   iNumMsgs = MessageThreadAction(szRequest, iType, bCrossFolder, iThread, pIn, bMatchFields, iSaved, pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetTreeID() : iFolderID, pFolder1, pFolder2, pCurr->GetID(), iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
 
    if(iMessageID != -1)
    {
