@@ -2351,8 +2351,8 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
    MessageTreeItem *pParentTree = NULL;
 
    // debug("MessageThread entry %s %d %s\n", szRequest, iType, BoolStr(bCrossFolder));
-   debug("MessageThreadAction r=%s ty=%d cf=%s th=%d i=%p mf=%s fm=%p(%ld) fid=%d f1=%p(%ld) f2=%p(%ld) uid=%d al=%d cd=%p f=%p r=%p s=%p o=%p\n",
-      szRequest, iType, BoolStr(bCrossFolder), iThread, pIn, BoolStr(bMatchFields),
+   debug("MessageThreadAction r=%s ty=%d cf=%s th=%d i=%p mf=%s s=%d fm=%p(%ld) fid=%d f1=%p(%ld) f2=%p(%ld) uid=%d al=%d cd=%p f=%p r=%p s=%p o=%p\n",
+      szRequest, iType, BoolStr(bCrossFolder), iThread, pIn, BoolStr(bMatchFields), iSaved
       pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetID() : -1, iFolderID, pFolder1, pFolder1 != NULL ? pFolder1->GetID() : -1, pFolder2, pFolder2 != NULL ? pFolder2->GetID() : -1,
                   iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
 
