@@ -139,6 +139,14 @@
     <function="MessageThread"/>
     <scope=2/>
   </request>
+  <request="message_mark_save">
+    <function="MessageThread"/>
+    <scope=2/>
+  </request>
+  <request="message_mark_unsave">
+    <function="MessageThread"/>
+    <scope=2/>
+  </request>
   <request="message_vote">
     <function="MessageVote"/>
     <scope=3/>
