@@ -272,6 +272,8 @@
 #define MSG_MESSAGE_MOVE "message_move"
 #define MSG_MESSAGE_MARK_READ "message_mark_read"
 #define MSG_MESSAGE_MARK_UNREAD "message_mark_unread"
+#define MSG_MESSAGE_MARK_SAVE "message_mark_save" // Added in v2.9-alpha
+#define MSG_MESSAGE_MARK_UNSAVE "message_mark_unsave" // Added in v2.9-alpha
 #define MSG_MESSAGE_VOTE "message_vote"
 #define MSG_CONTENT_ADD "content_add" // Added in v2.7-alpha
 #define MSG_CONTENT_DELETE "content_delete" // Added in v2.7-alpha

@@ -34,7 +34,6 @@ public:
 
    static bool UserAdd(long lUserID, long lMessageID);
    static bool UserDelete(long lUserID, long lMessageID);
-   static int UserType(long lUserID, long lMessageID);
 
    bool IsSaved(long lMessageID);
 
