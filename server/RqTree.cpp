@@ -707,7 +707,7 @@ bool MessageTreeAccessFull(int iBase, int iOp, int iID, int iTreeID, bool *pArch
          pOut->AddChild(MessageTreeName(iBase), pMessageTree->GetName());
       }
 
-      printf("MessageTreeAccessFull exit false(3), %s (%ld content request %d)\n", MessageTreeStr(iBase, "access_invalid"), pMessageTree->GetID(), iBase);
+      debug("MessageTreeAccessFull exit false(3), %s (%ld content request %d)\n", MessageTreeStr(iBase, "access_invalid"), pMessageTree->GetID(), iBase);
       return false;
    }
 
