@@ -54,9 +54,9 @@ public:
 
 
 
-   // long GetTopID();
+   long GetThreadID();
 
-   // bool SetTopID(long lTopID);
+   bool SetThreadID(long lThreadID);
 
 
 
@@ -120,10 +120,6 @@ public:
 
    bool SetExpire(long lTime);
 
-	long GetThreadID();
-
-	bool SetThreadID(long lThreadID);
-
    static FolderMessageItem *NextRow(DBTable *pTable, FolderMessageItem *pParent, MessageTreeItem *pTree);
 
 
@@ -160,7 +156,7 @@ private:
 
 
 
-   // long m_lTopID;
+   long m_lThreadID;
 
    bytes *m_pSubject;
 

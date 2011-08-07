@@ -33,6 +33,15 @@ FolderMessageItem::FolderMessageItem(long lID, FolderMessageItem *pParent, Messa
    STACKTRACE
 
    init(pTree);
+
+   if(pParent != NULL)
+   {
+	   m_lThreadID = pParent->GetThreadID();
+   }
+   else
+   {
+	   m_lThreadID = lID;
+   }
 }
 
 // Constructor with EDF data
@@ -44,7 +53,7 @@ FolderMessageItem::FolderMessageItem(EDF *pEDF, FolderMessageItem *pParent, Mess
 
    init(pTree);
 
-   // ExtractMember(pEDF, "topid", &m_lTopID, -1);
+   ExtractMember(pEDF, "threadid", &m_lThreadID, -1);
    ExtractMember(pEDF, "subject", &m_pSubject);
 
    EDFFields(pEDF);
@@ -56,8 +65,8 @@ FolderMessageItem::FolderMessageItem(DBTable *pTable, FolderMessageItem *pParent
 {
    init(pTree);
 
-   // GET_INT_TABLE(7, m_lTopID, -1)
-   GET_BYTES_TABLE(7, m_pSubject, true)
+   GET_INT_TABLE(7, m_lThreadID, -1)
+   GET_BYTES_TABLE(8, m_pSubject, true)
 
    EDFFields(NULL);
 
@@ -78,15 +87,15 @@ FolderMessageItem::~FolderMessageItem()
    return typeid(this).name();
 } */
 
-/* long FolderMessageItem::GetTopID()
+long FolderMessageItem::GetThreadID()
 {
-   return m_lTopID;
+   return m_lThreadID;
 }
 
-bool FolderMessageItem::SetTopID(long lTopID)
+bool FolderMessageItem::SetThreadID(long lThreadID)
 {
-   SET_INT(m_lTopID, lTopID)
-} */
+   SET_INT(m_lThreadID, lThreadID)
+}
 
 bytes *FolderMessageItem::GetSubject(bool bCopy)
 {
@@ -703,10 +712,10 @@ bool FolderMessageItem::WriteFields(EDF *pEDF, int iLevel)
 
    // printf("FolderMessageItem::WriteFields date %ld\n", m_lDate);
 
-   /* if(mask(iLevel, MESSAGEWRITE_HIDDEN) == true)
+   if(mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true)
    {
-      pEDF->AddChild("topid", m_lTopID);
-   } */
+      pEDF->AddChild("threadid", m_lThreadID);
+   }
 
    if((mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true || mask(iLevel, MESSAGEITEMWRITE_SUBJECT) == true) && m_pSubject != NULL)
    {
@@ -852,7 +861,7 @@ bool FolderMessageItem::WriteFields(DBTable *pTable, EDF *pEDF)
 
    MessageItem::WriteFields(pTable, pEDF);
 
-   // pTable->SetField(m_lTopID);
+   pTable->SetField(m_lThreadID);
    pTable->SetField(m_pSubject);
 
    return true;
@@ -864,8 +873,8 @@ bool FolderMessageItem::ReadFields(DBTable *pTable)
 
    MessageItem::ReadFields(pTable);
 
-   // topid, subject
-   // pTable->BindColumnInt();
+   // threadid, subject
+   pTable->BindColumnInt();
    pTable->BindColumnBytes();
 
    return true;
@@ -885,7 +894,7 @@ void FolderMessageItem::init(MessageTreeItem *pTree)
 {
    // Top level fields
 
-   // m_lTopID = -1;
+   m_lThreadID = -1;
    m_pSubject = NULL;
 
    // m_pReply = NULL;
