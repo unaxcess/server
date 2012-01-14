@@ -54,6 +54,7 @@ FolderMessageItem::FolderMessageItem(EDF *pEDF, FolderMessageItem *pParent, Mess
    init(pTree);
 
    ExtractMember(pEDF, "threadid", &m_lThreadID, -1);
+   m_bArchived = pEDF->GetChildBool("archived");
    ExtractMember(pEDF, "subject", &m_pSubject);
 
    EDFFields(pEDF);
@@ -61,12 +62,13 @@ FolderMessageItem::FolderMessageItem(EDF *pEDF, FolderMessageItem *pParent, Mess
    setup();
 }
 
-FolderMessageItem::FolderMessageItem(DBTable *pTable, FolderMessageItem *pParent, MessageTreeItem *pTree) : MessageItem(pTable, pParent, pTree, 8)
+FolderMessageItem::FolderMessageItem(DBTable *pTable, FolderMessageItem *pParent, MessageTreeItem *pTree) : MessageItem(pTable, pParent, pTree, 10)
 {
    init(pTree);
 
    GET_INT_TABLE(7, m_lThreadID, -1)
-   GET_BYTES_TABLE(8, m_pSubject, true)
+   GET_INT_TABLE(8, m_bArchived, false)
+   GET_BYTES_TABLE(9, m_pSubject, true)
 
    EDFFields(NULL);
 
@@ -92,11 +94,6 @@ long FolderMessageItem::GetThreadID()
    return m_lThreadID;
 }
 
-bool FolderMessageItem::SetThreadID(long lThreadID)
-{
-   SET_INT(m_lThreadID, lThreadID)
-}
-
 bytes *FolderMessageItem::GetSubject(bool bCopy)
 {
    GET_BYTES(m_pSubject)
@@ -105,6 +102,16 @@ bytes *FolderMessageItem::GetSubject(bool bCopy)
 bool FolderMessageItem::SetSubject(bytes *pSubject)
 {
    SET_BYTES(m_pSubject, pSubject, UA_SHORTMSG_LEN)
+}
+
+bool FolderMessageItem::GetArchived()
+{
+	return m_bArchived;
+}
+
+bool FolderMessageItem::SetArchived(bool bArchived)
+{
+	SET_INT(m_bArchived, bArchived)
 }
 
 int FolderMessageItem::GetVoteType()
@@ -715,6 +722,10 @@ bool FolderMessageItem::WriteFields(EDF *pEDF, int iLevel)
    if(mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true)
    {
       pEDF->AddChild("threadid", m_lThreadID);
+	  if(m_bArchived)
+	  {
+         pEDF->AddChild("archived", m_bArchived);
+	  }
    }
 
    if((mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true || mask(iLevel, MESSAGEITEMWRITE_SUBJECT) == true) && m_pSubject != NULL)
@@ -862,6 +873,7 @@ bool FolderMessageItem::WriteFields(DBTable *pTable, EDF *pEDF)
    MessageItem::WriteFields(pTable, pEDF);
 
    pTable->SetField(m_lThreadID);
+   pTable->SetField(m_bArchived);
    pTable->SetField(m_pSubject);
 
    return true;
@@ -873,7 +885,8 @@ bool FolderMessageItem::ReadFields(DBTable *pTable)
 
    MessageItem::ReadFields(pTable);
 
-   // threadid, subject
+   // threadid, archived, subject
+   pTable->BindColumnInt();
    pTable->BindColumnInt();
    pTable->BindColumnBytes();
 

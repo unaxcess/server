@@ -145,6 +145,7 @@ bool FolderReadItemDB(EDF *pData, MessageTreeItem *pFolder, int iExpire)
 
          if(bAdd == true)
          {
+			pFolderMessage->SetArchived(false);
             FolderMessageAdd(pFolderMessage);
             iNumAdds++;
          }
