@@ -49,6 +49,7 @@
 #define FMIL_SINGLE 0 // Single message mode
 #define FMIL_SEARCH 1 // Multi message search mode
 #define FMIL_FOLDER 2 // Multi message tree mode
+#define FMIL_THREAD 4 // Multi message tree mode
 
 MessageTreeItem *g_pBulletinList = NULL;
 
@@ -2044,7 +2045,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
                   if(pReads != NULL)
                   {
                      // Check marking
-                     if(MessageListRead(pOut, pItem->GetID(), pReads) == false && iTree == FMIL_SINGLE && bMarkRead)
+                     if(MessageListRead(pOut, pItem->GetID(), pReads) == false && (iTree == FMIL_SINGLE || iTree == FMIL_THREAD) && bMarkRead)
                      {
                         // debug("FolderMessageItemList marking read\n");
                         // bDebug = DBMessageRead::Debug(true);
@@ -3125,7 +3126,7 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 {
    STACKTRACE
-   int iBase = RequestGroup(pIn), iFolderID = -1, iID = 0, iType = 0, iLevel = 0, iUserID = -1, iAccessLevel = LEVEL_NONE, iNumMsgs = 0;
+   int iBase = RequestGroup(pIn), iFolderID = -1, iID = 0, iThreadID = -1, iType = 0, iLevel = 0, iUserID = -1, iAccessLevel = LEVEL_NONE, iNumMsgs = 0;
    int iTree = 0, iSubType = SUBTYPE_SUB, iAttachmentID = -1, iFolderNum = 0, iMinID = -1, iMaxID = -1, iDebug = 0, iDefOp = MATCH_AND;
    bool bArchive = false, bNoPrivate = false, bMarkRead = true, bSaved = false; //, bLoop = true, bCheck = false;
    double dEntry = gettick();
@@ -3153,7 +3154,26 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       bArchive = pIn->GetChildBool("archive", false);
    }
 
-   if(pIn->GetChild(MessageID(iBase), &iID) == true)
+   if(pIn->GetChild("threadid", &iThreadID) == true)
+   {
+	   // Specific thread
+      if(MessageTreeAccess(iBase, MTA_MESSAGE_READ, iThreadID, iFolderID, &bArchive, pCurr, pFolders, pOut, &pFolder, (MessageItem **)&pFolderMessage, &iSubType) == false)
+      {
+         // Cannot access message
+         return false;
+      }
+
+	  if(pFolderMessage->GetID() != iThreadID)
+	  {
+         pOut->Set("reply", MessageTreeStr(iBase, "not_exist"));
+         pOut->AddChild(MessageTreeID(iBase), iThreadID);
+		  return false;
+	  }
+
+      bMarkRead = pIn->GetChildBool("markread", true);
+      FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_THREAD, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
+   }
+   else if(pIn->GetChild(MessageID(iBase), &iID) == true)
    {
       // Specific message
 
