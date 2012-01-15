@@ -495,7 +495,6 @@ bool MessageItem::IsEDFField(char *szName)
       stricmp(szName, "date") == 0 ||
       stricmp(szName, "fromid") == 0 ||
       stricmp(szName, "toid") == 0 ||
-      stricmp(szName, "subject") == 0 ||
       stricmp(szName, "text") == 0)
    {
       return false;

@@ -683,7 +683,9 @@ bool FolderMessageItem::IsEDFField(char *szName)
    // printf("FolderMessageItem::IsEDFField %s\n", szName);
 
    // Fields that have member storage
-   if(stricmp(szName, "subject") == 0)
+   if(stricmp(szName, "threadid") == 0 ||
+	  stricmp(szName, "archived") == 0 ||
+	  stricmp(szName, "subject") == 0)
    {
       return false;
    }
@@ -908,6 +910,7 @@ void FolderMessageItem::init(MessageTreeItem *pTree)
    // Top level fields
 
    m_lThreadID = -1;
+   m_bArchived = false;
    m_pSubject = NULL;
 
    // m_pReply = NULL;
