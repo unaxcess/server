@@ -1940,7 +1940,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
 
       debug(DEBUGLEVEL_DEBUG, "FolderMessageItemList write=%s, tree %p / %p\n", BoolStr(bWrite), pFolder, pItem->GetTree());
 
-      if(bWrite == true && (pFolder == NULL || pItem->GetTree() == pFolder))
+      if(bWrite == true && (pFolder == NULL || pItem->GetTree() == pFolder || iTree == FMIL_THREAD))
       {
          if(pItem->GetDeleted() == false || iAccessLevel >= LEVEL_WITNESS)
          {
@@ -2000,7 +2000,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
                   pOut->AddChild("folderid", pFolder->GetID());
                   pOut->AddChild("foldername", pFolder->GetName());
                }
-               else if(iTree == FMIL_SEARCH)
+               else if(iTree == FMIL_THREAD || iTree == FMIL_SEARCH)
                {
                   if(FolderGet(pItem->GetTreeID(), &szName, false) != NULL)
                   {
@@ -2045,7 +2045,7 @@ bool FolderMessageItemList(EDF *pOut, int iLevel, FolderMessageItem *pItem, int 
                   if(pReads != NULL)
                   {
                      // Check marking
-                     if(MessageListRead(pOut, pItem->GetID(), pReads) == false && (iTree == FMIL_SINGLE || iTree == FMIL_THREAD) && bMarkRead)
+                     if(MessageListRead(pOut, pItem->GetID(), pReads) == false && iTree == FMIL_SINGLE && bMarkRead)
                      {
                         // debug("FolderMessageItemList marking read\n");
                         // bDebug = DBMessageRead::Debug(true);
@@ -3170,8 +3170,10 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 		  return false;
 	  }
 
-      bMarkRead = pIn->GetChildBool("markread", true);
-      FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_THREAD, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
+	  iType = 1;
+         iLevel |= MESSAGEITEMWRITE_DETAILS;
+
+		 FolderMessageItemList(pOut, iLevel, pFolderMessage, iBase, pFolder, FMIL_THREAD, iUserID, iAccessLevel, iSubType, bArchive, bMarkRead, bSaved, pConnData, pFolders, pReads, pSaves, pIn, iDefOp, iAttachmentID, &iMinID, &iMaxID, &iNumMsgs);
    }
    else if(pIn->GetChild(MessageID(iBase), &iID) == true)
    {
@@ -3334,33 +3336,44 @@ ICELIBFN bool MessageList(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
 
    // Output fields
    pOut->AddChild("searchtype", iType);
-   if(pFolder != NULL)
+
+   if(iThreadID == -1)
    {
-      // Single folder fields
-      if(pFolder->GetID() > 0)
-      {
-         pOut->AddChild("folderid", pFolder->GetID());
-         pOut->AddChild("foldername", pFolder->GetName());
-      }
+	   if(pFolder != NULL)
+	   {
+		  // Single folder fields
+		  if(pFolder->GetID() > 0)
+		  {
+			 pOut->AddChild("folderid", pFolder->GetID());
+			 pOut->AddChild("foldername", pFolder->GetName());
+		  }
 
-      pOut->AddChild("nummsgs", pFolder->GetNumMsgs());
-      if(iAccessLevel >= LEVEL_WITNESS || iSubType == SUBTYPE_EDITOR)
-      {
-         pOut->AddChild("totalmsgs", pFolder->GetTotalMsgs());
-      }
+		  pOut->AddChild("nummsgs", pFolder->GetNumMsgs());
+		  if(iAccessLevel >= LEVEL_WITNESS || iSubType == SUBTYPE_EDITOR)
+		  {
+			 pOut->AddChild("totalmsgs", pFolder->GetTotalMsgs());
+		  }
 
-      if(iMinID != -1)
-      {
-         pOut->AddChild("minid", iMinID);
-      }
-      if(iMaxID != -1)
-      {
-         pOut->AddChild("maxid", iMaxID);
-      }
+		  if(iMinID != -1)
+		  {
+			 pOut->AddChild("minid", iMinID);
+		  }
+		  if(iMaxID != -1)
+		  {
+			 pOut->AddChild("maxid", iMaxID);
+		  }
+	   }
+	   else if(iNumMsgs > 0)
+	   {
+		  pOut->AddChild("nummsgs", iNumMsgs);
+	   }
    }
-   else if(iNumMsgs > 0)
+   else
    {
-      pOut->AddChild("nummsgs", iNumMsgs);
+	   if(iNumMsgs > 0)
+	   {
+		  pOut->AddChild("nummsgs", iNumMsgs);
+	   }
    }
 
    // EDFPrint("MessageList exit true", pOut);
