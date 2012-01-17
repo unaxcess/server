@@ -1,3 +1,9 @@
+Version 2.9-beta1, 07/08/11
+
+- Added "threadid" to message
+- Added archive to message
+- Added non-logged in disconnect after idle timeout
+
 Version 2.7-beta13, 19/08/04
 
 - Changed MessageThread cross folder check to include all requests not just marking
