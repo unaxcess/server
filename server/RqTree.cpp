@@ -1694,7 +1694,8 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
       if(iBase == RFG_MESSAGE)
       {
 		  pCatchups = DBMessageRead::UserCatchups(pItem->GetParentID());
-         for(iUserNum = 0; iUserNum < UserCount(); iUserNum++)
+
+		  for(iUserNum = 0; iUserNum < UserCount(); iUserNum++)
          {
             pList = UserList(iUserNum);
             pListConn = ConnectionFind(CF_USERID, pList->GetID());
@@ -1705,6 +1706,7 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
                MessageMarking(pList, NULL, pCatchups, MessageTreeStr(iBase, iOp), (FolderMessageItem *)pItem);
             }
          }
+
 		 delete pCatchups;
       }
 

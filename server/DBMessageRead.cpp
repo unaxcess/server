@@ -28,6 +28,11 @@ DBMessageRead::DBMessageRead(long lUserID) : DBItemList<DBMessageReadData *>(lUs
    DBTable *pTable = NULL;
    DBMessageReadData *pData = NULL;
 
+   if(GetID() == -1)
+   {
+	   return;
+   }
+
    pTable = new DBTable();
    pTable->BindColumnInt();
    pTable->BindColumnBytes();
@@ -136,7 +141,7 @@ DBMessageRead *DBMessageRead::UserCatchups(long lMessageID)
       return pCatchups;
    }
 
-   pCatchups = new DBMessageRead(lMessageID);
+   pCatchups = new DBMessageRead();
 
    while(pTable->NextRow() == true)
    {
@@ -182,6 +187,16 @@ int DBMessageRead::Get(long lMessageID)
 /* void DBMessageRead::ItemDelete(DBMessageReadData *pData)
 {
 } */
+
+bool DBMessageRead::GetWrite()
+{
+	if(GetID() == -1)
+	{
+		return false;
+	}
+
+	return DBItemList::GetWrite();
+}
 
 bool DBMessageRead::ItemCompare(DBMessageReadData *pData1, DBMessageReadData *pData2)
 {

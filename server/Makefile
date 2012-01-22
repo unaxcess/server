@@ -34,10 +34,11 @@ all:	$(BINARY)
 clean:
 	@\rm -f $(BINARY) $(OBJS1) $(OBJS2)
 
-build.h:
+build.o:
 	@../incbuild.sh
+	$(CC) $(CCFLAGS) -c $< -o $(@)
 
-$(BINARY1):	$(OBJS1)
+$(BINARY1):	build.o $(OBJS1)
 	@\rm -f $(BINARY1)
 	$(LD) -o $(BINARY1) $(OBJS1) $(LDFLAGS) -shared -expall
 
@@ -91,7 +92,7 @@ RqTalk.o:	RqTalk.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful
 RqTree.o:	RqTree.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../common/EDFConn.h ../Conn/Conn.h ../db/DBTable.h ../ua.h ../ICE/ICE.h ../server/Folder.h MessageTreeItem.h TreeNodeItem.h EDFItem.h EDFItemList.h TreeNodeItem.cpp MessageItem.h FolderMessageItem.h ../server/Talk.h ChannelMessageItem.h server.h ../server/User.h UserItem.h ../server/MessageItem.h DBSub.h DBItemList.h ../server/ItemList.h ItemList.cpp DBItemList.cpp DBMessageRead.h DBMessageSave.h RqTree.h ../server/MessageTreeItem.h ../server/FolderMessageItem.h ../server/UserItem.h ../server/DBSub.h RqFolder.h ../server/DBMessageRead.h RqTalk.h
 RqUser.o:	RqUser.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../common/EDFConn.h ../Conn/Conn.h ../db/DBTable.h ../ua.h ../ICE/ICE.h ../server/Folder.h MessageTreeItem.h TreeNodeItem.h EDFItem.h EDFItemList.h TreeNodeItem.cpp MessageItem.h FolderMessageItem.h server.h ../server/User.h UserItem.h ../server/MessageItem.h DBSub.h DBItemList.h ../server/ItemList.h ItemList.cpp DBItemList.cpp DBMessageRead.h DBMessageSave.h RqUser.h ../server/UserItem.h RqFolder.h ../server/DBMessageRead.h RqTree.h ../server/MessageTreeItem.h ../server/FolderMessageItem.h ../server/DBSub.h RqSystem.h
 
-server.o:	build.h server.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../common/EDFConn.h ../Conn/Conn.h ../db/DBTable.h ../ua.h ../ICE/ICE.h server.h ../server/User.h UserItem.h EDFItem.h ../server/MessageItem.h TreeNodeItem.h EDFItemList.h TreeNodeItem.cpp DBSub.h DBItemList.h ../server/ItemList.h ItemList.cpp DBItemList.cpp DBMessageRead.h DBMessageSave.h ../server/Folder.h MessageTreeItem.h FolderMessageItem.h ../server/Talk.h ChannelMessageItem.h RqTree.h ../server/MessageTreeItem.h ../server/FolderMessageItem.h ../server/UserItem.h ../server/DBSub.h RqFolder.h ../server/DBMessageRead.h RqTalk.h RqSystem.h RqUser.h build.h
+server.o:	server.cpp headers.h ../EDF/EDF.h ../EDF/EDFElement.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDFParser.h ../common/EDFConn.h ../Conn/Conn.h ../db/DBTable.h ../ua.h ../ICE/ICE.h server.h ../server/User.h UserItem.h EDFItem.h ../server/MessageItem.h TreeNodeItem.h EDFItemList.h TreeNodeItem.cpp DBSub.h DBItemList.h ../server/ItemList.h ItemList.cpp DBItemList.cpp DBMessageRead.h DBMessageSave.h ../server/Folder.h MessageTreeItem.h FolderMessageItem.h ../server/Talk.h ChannelMessageItem.h RqTree.h ../server/MessageTreeItem.h ../server/FolderMessageItem.h ../server/UserItem.h ../server/DBSub.h RqFolder.h ../server/DBMessageRead.h RqTalk.h RqSystem.h RqUser.h build.h
 
 ICE-leak.o:	../ICE/ICE.cpp ../common/EDFConn.h ../Conn/Conn.h ../useful/useful.h ../useful/StackTrace.h ../useful/LeakTrace.h ../EDF/EDF.h ../EDF/EDFElement.h ../EDF/EDFParser.h ../ICE/ICE.h
 	$(CC) $(CCFLAGS) -DLEAKTRACEON -c $< -o $(@)

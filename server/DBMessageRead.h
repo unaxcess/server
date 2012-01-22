@@ -28,7 +28,7 @@ struct DBMessageReadData
 class DBMessageRead : public DBItemList<DBMessageReadData *>
 {
 public:
-   DBMessageRead(long lUserID);
+   DBMessageRead(long lUserID = -1);
    ~DBMessageRead();
 
    bool Add(long lMessageID, int iMarkType);
@@ -40,6 +40,7 @@ public:
    int Get(long lMessageID);
 
 protected:
+	bool GetWrite();
    bool ItemCompare(DBMessageReadData *pData1, DBMessageReadData *pData2);
 
    bool PreWrite(bool bLock);
