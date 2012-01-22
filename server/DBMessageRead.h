@@ -28,7 +28,7 @@ struct DBMessageReadData
 class DBMessageRead : public DBItemList<DBMessageReadData *>
 {
 public:
-   DBMessageRead(long lUserID = -1);
+   DBMessageRead(long lUserID);
    ~DBMessageRead();
 
    bool Add(long lMessageID, int iMarkType);
