@@ -1474,6 +1474,7 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
    UserItem *pFrom = NULL, *pTo = NULL, *pList = NULL;
    // FolderMessageItem *pFolderMessage = NULL;
    ChannelMessageItem *pChannelMessage = NULL;
+   DBMessageRead *pCatchups = NULL;
 
    if(szRequest == NULL)
    {
@@ -1692,6 +1693,7 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
 
       if(iBase == RFG_MESSAGE)
       {
+		  pCatchups = DBMessageRead::UserCatchups(pItem->GetID());
          for(iUserNum = 0; iUserNum < UserCount(); iUserNum++)
          {
             pList = UserList(iUserNum);
@@ -1700,9 +1702,10 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
             // if(mask(pItem->GetStatus(), LOGIN_ON) == false)
             if(pListConn == NULL)
             {
-               MessageMarking(pList, NULL, MessageTreeStr(iBase, iOp), (FolderMessageItem *)pItem);
+               MessageMarking(pList, NULL, pCatchups, MessageTreeStr(iBase, iOp), (FolderMessageItem *)pItem);
             }
          }
+		 delete pCatchups;
       }
 
       delete pAnnounce;

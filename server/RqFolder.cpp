@@ -1617,7 +1617,7 @@ int MessageMark(FolderMessageItem *pMessage, bool bRead, UserItem *pUser, DBMess
    return iReturn;
 }
 
-int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounce, FolderMessageItem *pItem, int iOverride, int *pMarkType)
+int MessageMarking(UserItem *pUser, DBMessageRead *pReads, DBMessageRead *pCatchups, const char *szAnnounce, FolderMessageItem *pItem, int iOverride, int *pMarkType)
 {
    STACKTRACE
    int iMarking = 0, iReturn = -1, iMarkType = 0;
@@ -1637,14 +1637,14 @@ int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounc
          {
             iMarkType = pReads->Get(pItem->GetParentID());
          }
-         else
+         else if(pCatchups != NULL)
          {
-            iMarkType = DBMessageRead::UserType(pUser->GetID(), pItem->GetParentID());
+            iMarkType = pCatchups->Get(pUser->GetID());
          }
 
          // printf("MessageMarking %ld(%s) / %ld / %ld / %d", pUser->GetID(), pUser->GetName(), pFolderMessage->GetID(), pFolderMessage->GetParentID(), iMarkType);
 
-         if(mask(iMarkType, THREAD_MSGCHILD) == true || mask(iMarkType, THREAD_CHILD) == true)
+         if(iMarkType == THREAD_MSGCHILD || iMarkType == THREAD_CHILD)
          {
             // Stay caught up
             pParent = (FolderMessageItem *)pItem->GetParent();
@@ -2354,7 +2354,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
       pFolderMessage, pFolderMessage != NULL ? pFolderMessage->GetID() : -1, iFolderID, pFolder1, pFolder1 != NULL ? pFolder1->GetID() : -1, pFolder2, pFolder2 != NULL ? pFolder2->GetID() : -1,
                   iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
 
-   if(pFolderMessage != NULL && mask(iType, THREAD_CHILD) == false)
+   if(pFolderMessage != NULL && iType != THREAD_CHILD)
    {
       // debug("MessageThread folder %d %d\n", iFolderID, pFolderMessage->GetTreeID());
 
@@ -2381,7 +2381,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
       
       // debug("MessageThreadAction check point 1\n");
 
-      if(bCheck == true && (bMatchFields == false || MessageMatch(pFolderMessage, pIn, MATCH_AND, NULL) == true))
+      if(bCheck == true && (bMatchFields == false || MessageMatch(pFolderMessage, pIn, MATCH_AND) == true))
       {
          // printf("MessageThread matched %ld\n", pFolderMessage->GetID());
 
@@ -2488,7 +2488,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
    
    // debug("MessageThreadAction check point 2 %p %p\n", pFolderMessage, pFolder1);
 
-   if(mask(iType, THREAD_MSGCHILD) == true || mask(iType, THREAD_CHILD) == true)
+   if(iType == THREAD_MSGCHILD || iType == THREAD_CHILD)
    {
       // Children depend on input folder / message
       if(pFolderMessage != NULL)
@@ -2515,7 +2515,7 @@ int MessageThreadAction(char *szRequest, int iType, bool bCrossFolder, int iThre
             pChild = (FolderMessageItem *)pFolder1->MessageChild(iChildNum);
          }
 
-         if(mask(iType, THREAD_CHILD) == true || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
+         if(iType == THREAD_CHILD || bCrossFolder == true || CrossFolder(iFolderID, pChild->GetTree()) == true)
          {
             iReturn += MessageThreadAction(szRequest, THREAD_MSGCHILD, bCrossFolder, iThread, pIn, bMatchFields, pChild, iFolderID, pFolder1, pFolder2, iUserID, iAccessLevel, pConnData, pFolders, pReads, pSaves, pOut);
          }
@@ -2605,7 +2605,7 @@ bool MessageVoteClose(EDF *pData, int iBase, FolderMessageItem *pItem, bool bAnn
          pListData = (ConnData *)pListConn->Data();
          if(pListData->m_pUser != NULL && pListData->m_pReads != NULL)
          {
-            MessageMarking(pListData->m_pUser, pListData->m_pReads, MSG_MESSAGE_EDIT, pItem, MARKED_UNREAD);
+            MessageMarking(pListData->m_pUser, pListData->m_pReads, NULL, MSG_MESSAGE_EDIT, pItem, MARKED_UNREAD);
          }
       }
 
@@ -2653,10 +2653,11 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    MessageTreeItem *pFolder = NULL;
    UserItem *pCurr = CONNUSER;
    DBSub *pFolders = CONNFOLDERS;
+   int iDebug = debuglevel(DEBUGLEVEL_DEBUG);
 
    // STACKTRACEUPDATE
 
-   // EDFPrint("MessageAdd entry", pIn);
+   EDFParser::debugPrint("MessageAdd entry", pIn);
 
    if(iBase == RFG_MESSAGE)
    {
@@ -2668,6 +2669,7 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          if(MessageTreeAccess(iBase, MTA_MESSAGE_READ, iReplyID, pCurr, pFolders, pOut, &pFolder, (MessageItem **)&pParent, NULL) == false)
          {
             // Cannot access message
+			debuglevel(iDebug);
             return false;
          }
 
@@ -2684,6 +2686,7 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          if(MessageTreeAccess(iBase, MTA_MESSAGE_WRITE, iFolderID, pCurr, pFolders, pOut, &pFolder, NULL, NULL) == false)
          {
             // Cannot access folder
+			debuglevel(iDebug);
             return false;
          }
       }
@@ -2706,6 +2709,7 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
             if(MessageTreeAccess(iBase, MTA_MESSAGE_WRITE, pFolder, pCurr, pFolders, pOut, NULL) == false)
             {
                // Cannot access folder
+				debuglevel(iDebug);
                return false;
             }
          }
@@ -2713,6 +2717,7 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          {
             // Nowhere to put reply
             pOut->Set("reply", MSG_FOLDER_NOT_EXIST);
+			debuglevel(iDebug);
             return false;
          }
       }
@@ -2723,12 +2728,14 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       {
          pOut->Set("reply", MSG_FOLDER_NOT_EXIST);
 
+		 debuglevel(iDebug);
          return false;
       }
 
       if(MessageTreeAccess(iBase, MTA_MESSAGE_WRITE, iFolderID, pCurr, pFolders, pOut, &pFolder, NULL, NULL) == false)
       {
          // Cannot access folder
+		  debuglevel(iDebug);
          return false;
       }
 
@@ -2801,7 +2808,8 @@ ICELIBFN bool MessageAdd(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    }
    pCurr->SetStat(USERITEMSTAT_LASTMSG, time(NULL));
 
-   // EDFPrint("MessageAdd exit true", pOut);
+   EDFParser::debugPrint("MessageAdd exit true", pOut);
+   debuglevel(iDebug);
    return true;
 }
 
@@ -2979,7 +2987,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
          pOut->AddChild(szTypeField, iType);
       }
 
-      if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 && (mask(iType, THREAD_CHILD) == true || mask(iType, THREAD_MSGCHILD) == true))
+      if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 && iType >= THREAD_MSGCHILD)
       {
          if(pIn->GetChildBool("markkeep") == true)
          {
@@ -3081,6 +3089,7 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    ConnData *pConnData = CONNDATA;
    FolderMessageItem *pFolderMessage = NULL;
    DBSub *pFolders = CONNFOLDERS;
+   int iDebug = debuglevel(DEBUGLEVEL_DEBUG);
 
    EDFParser::debugPrint("MessageEdit entry", pIn);
 
@@ -3088,11 +3097,13 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    {
       pOut->Set("reply", MessageStr(iBase, "not_exist"));
       debug("MessageEdit exit false, %s\n", MessageTreeStr(iBase, "not_exist"));
+	  debuglevel(iDebug);
       return false;
    }
 
    if(MessageTreeAccess(iBase, MTA_MESSAGE_EDIT, iID, pCurr, pFolders, pOut, NULL, (MessageItem **)&pFolderMessage, &iSubType) == false)
    {
+	   debuglevel(iDebug);
       return false;
    }
 
@@ -3100,6 +3111,7 @@ ICELIBFN bool MessageEdit(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    MessageItemEdit(pData, RQ_EDIT, pFolderMessage, pIn, pOut, pCurr, pConnData, NULL, iBase, true, iSubType);
 
    EDFParser::debugPrint("MessageEdit exit true", pOut);
+   debuglevel(iDebug);
    return true;
 }
 

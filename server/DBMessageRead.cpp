@@ -113,46 +113,48 @@ bool DBMessageRead::UserDelete(long lUserID, long lMessageID)
    return ItemWrite(OP_DELETE, lUserID, lMessageID, 0);
 }
 
-int DBMessageRead::UserType(long lUserID, long lMessageID)
+DBMessageRead *DBMessageRead::UserCatchups(long lMessageID)
 {
    STACKTRACE
-   int iReturn = 0;
+   int iMarkType = -1;
+   long lUserID = -1;
    char *szMarkType = NULL;
    char szSQL[200];
    DBTable *pTable = NULL;
+   DBMessageRead *pCatchups = NULL;
 
    pTable = new DBTable();
    pTable->BindColumnBytes();
 
-   sprintf(szSQL, "select marktype from %s where userid = %ld and messageid = %ld", FM_READ_TABLE, lUserID, lMessageID);
+   sprintf(szSQL, "select userid,marktype from %s where messageid = %ld and marktype >= 0", FM_READ_TABLE, lMessageID);
 
    if(pTable->Execute(szSQL) == false)
    {
       delete pTable;
 
-      return -1;
+      return pCatchups;
    }
 
-   if(pTable->NextRow() == false)
-   {
-      delete pTable;
+   pCatchups = new DBMessageRead(lMessageID);
 
-      return -1;
-   }
-
-   pTable->GetField(0, &szMarkType);
-   if(szMarkType != NULL)
+   while(pTable->NextRow() == true)
    {
-      iReturn = szMarkType[0] - '0';
-      if(iReturn > 0)
-      {
-         debug("DBMessageRead::UserType marktype %s -> %d\n", szMarkType, iReturn);
-      }
+	   pTable->GetField(0, &lUserID);
+	   pTable->GetField(1, &szMarkType);
+	   if(szMarkType != NULL)
+	   {
+		  iMarkType = szMarkType[0] - '0';
+		  if(iMarkType > 0)
+		  {
+			 debug("DBMessageRead::UserCatchups marktype %s -> %d\n", szMarkType, iMarkType);
+			 pCatchups->Add(lUserID, iMarkType);
+		  }
+	   }
    }
 
    delete pTable;
 
-   return iReturn;
+   return pCatchups;
 }
 
 int DBMessageRead::Get(long lMessageID)

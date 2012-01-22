@@ -723,7 +723,10 @@ bool FolderMessageItem::WriteFields(EDF *pEDF, int iLevel)
 
    if(mask(iLevel, MESSAGEITEMWRITE_DETAILS) == true)
    {
-      pEDF->AddChild("threadid", m_lThreadID);
+      if(m_lThreadID > 0)
+      {
+      	pEDF->AddChild("threadid", m_lThreadID);
+      }
 	  if(m_bArchived)
 	  {
          pEDF->AddChild("archived", m_bArchived);

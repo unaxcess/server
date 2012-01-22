@@ -35,7 +35,7 @@ public:
 
    static bool UserAdd(long lUserID, long lMessageID, int iMarkType);
    static bool UserDelete(long lUserID, long lMessageID);
-   static int UserType(long lUserID, long lMessageID);
+   static DBMessageRead *UserCatchups(long lMessageID);
 
    int Get(long lMessageID);
 

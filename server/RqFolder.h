@@ -34,7 +34,7 @@ bool BulletinUnload();
 FolderMessageItem *BulletinGet(int iBulletinID);
 FolderMessageItem *BulletinList(int iListNum);
 
-int MessageMarking(UserItem *pUser, DBMessageRead *pReads, const char *szAnnounce, FolderMessageItem *pItem, int iOverride = 0, int *pMarkType = NULL);
+int MessageMarking(UserItem *pUser, DBMessageRead *pReads, DBMessageRead *pCatchups, const char *szAnnounce, FolderMessageItem *pItem, int iOverride = 0, int *pMarkType = NULL);
 
 void FolderMessageItemAnnounce(EDF *pAnnounce, int iOp, FolderMessageItem *pItem, int iOldVoteType);
 

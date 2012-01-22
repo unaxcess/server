@@ -704,7 +704,7 @@ int ServerAnnounce(EDF *pData, const char *szAnnounce, EDF *pAnnounce, EDF *pAdm
                            if((stricmp(szAnnounce, MSG_MESSAGE_ADD) == 0 || stricmp(szAnnounce, MSG_MESSAGE_EDIT) == 0) && bIsMarked == false)
                            {
                               // iDebug = debuglevel(DEBUGLEVEL_DEBUG);
-                              iMarked = MessageMarking(pList, pListData->m_pReads, szAnnounce, (FolderMessageItem *)pMessage, 0, &iMarkType);
+                              iMarked = MessageMarking(pList, pListData->m_pReads, NULL, szAnnounce, (FolderMessageItem *)pMessage, 0, &iMarkType);
                               // debuglevel(iDebug);
                            }
 
