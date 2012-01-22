@@ -1693,7 +1693,7 @@ bool MessageItemEdit(EDF *pData, int iOp, MessageItem *pItem, EDF *pIn, EDF *pOu
 
       if(iBase == RFG_MESSAGE)
       {
-		  pCatchups = DBMessageRead::UserCatchups(pItem->GetID());
+		  pCatchups = DBMessageRead::UserCatchups(pItem->GetParentID());
          for(iUserNum = 0; iUserNum < UserCount(); iUserNum++)
          {
             pList = UserList(iUserNum);
