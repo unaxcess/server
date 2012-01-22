@@ -3558,7 +3558,7 @@ ICELIBFN int ConnectionBackground(EDFConn *pConn, EDF *pData)
             iNumAnnounces++;
          }
 
-		 if(pConnData->m_pUser == NULL && UserItem::IsIdle(pConnData->m_lTimeOn))
+		 if(pConnData->m_pUser == NULL && UserItem::IsIdle(pConnData->m_lTimeOn) && pConnData->m_bClose == false)
 		 {
 			 ConnectionShut(pConn, pData, 0, 0, NULL, NULL, false);
 		 }
