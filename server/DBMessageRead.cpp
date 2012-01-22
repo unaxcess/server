@@ -124,9 +124,10 @@ DBMessageRead *DBMessageRead::UserCatchups(long lMessageID)
    DBMessageRead *pCatchups = NULL;
 
    pTable = new DBTable();
+   pTable->BindColumnInt();
    pTable->BindColumnBytes();
 
-   sprintf(szSQL, "select userid,marktype from %s where messageid = %ld and marktype >= 0", FM_READ_TABLE, lMessageID);
+   sprintf(szSQL, "select userid,marktype from %s where messageid = %ld and marktype > 0", FM_READ_TABLE, lMessageID);
 
    if(pTable->Execute(szSQL) == false)
    {
