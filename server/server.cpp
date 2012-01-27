@@ -2227,7 +2227,7 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    ConnData *pListData = NULL;
    ConnAnnounce *pConnAnnounce = NULL;
 
-   debug("ServerLoad entry %ld %d, %s %d %s %s\n", lMilliseconds, iOptions, VERSION, BUILDNUM, BUILDDATE, BUILDTIME);
+   debug("ServerLoad entry %ld %d, %s %d %s %s\n", lMilliseconds, iOptions, VERSION, BuildNum(), BuildDate(), BuildTime());
 
    m_iWriteTime = time(NULL);
 
@@ -2236,9 +2236,9 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    pData->SetChild("name", SERVER_NAME);
    pData->SetChild("version", VERSION);
    pData->SetChild("protocol", PROTOCOL);
-   pData->SetChild("buildnum", BUILDNUM);
-   pData->SetChild("builddate", BUILDDATE);
-   pData->SetChild("buildtime", BUILDTIME);
+   pData->SetChild("buildnum", BuildNum());
+   pData->SetChild("builddate", BuildDate());
+   pData->SetChild("buildtime", BuildTime());
    pData->AddChild("reloadtime", (int)(time(NULL)));
 
    pData->GetChild("loginattempts", &iAttempts);
