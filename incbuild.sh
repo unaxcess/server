@@ -24,7 +24,7 @@ if [ -e .incbuild ] ; then
 	echo "Removing build object..."
     \rm build.o
   else
-	echo "Increasing build number..."
+	echo "Increasing build number $BUILDNUM..."
 	
 	BUILDNUM=`echo "$BUILDNUM + 1" | bc`
 	buildfile

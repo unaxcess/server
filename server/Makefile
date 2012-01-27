@@ -30,6 +30,7 @@ OBJS6=$(OBJS) Location.o Skeleton.o ../EDF/EDF.o ../EDF/EDFElement.o ../EDF/EDFP
 
 
 all:	$(BINARY)
+	@../incbuild.sh --clean
 
 clean:
 	@\rm -f $(BINARY) $(OBJS1) $(OBJS2)
@@ -41,7 +42,6 @@ build.o:	build.cpp build.h
 $(BINARY1):	build.o $(OBJS1)
 	@\rm -f $(BINARY1)
 	$(LD) -o $(BINARY1) $(OBJS1) $(LDFLAGS) -shared -expall
-	@../incbuild.sh --clean
 
 $(BINARY2):	$(OBJS2)
 	$(LD) -o $(BINARY2) $(OBJS2) $(LDFLAGS) -rdynamic -ldl
