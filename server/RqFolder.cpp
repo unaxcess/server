@@ -3038,7 +3038,7 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
       {
          pOut->AddChild("nummoved", iNumMsgs);
       }
-      else if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 || stricmp(szRequest, MSG_MESSAGE_MARK_UNREAD) == 0)
+      else if(stricmp(szRequest, MSG_MESSAGE_MARK_READ) == 0 || stricmp(szRequest, MSG_MESSAGE_MARK_UNREAD) == 0 || stricmp(szRequest, MSG_MESSAGE_MARK_SAVE) == 0 || stricmp(szRequest, MSG_MESSAGE_MARK_UNSAVE) == 0)
       {
          pOut->AddChild("nummarked", iNumMsgs);
       }
