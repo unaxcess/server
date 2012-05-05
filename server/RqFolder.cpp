@@ -581,6 +581,7 @@ void FolderMaintenance(EDFConn *pConn, EDF *pData)
             {
                debug("FolderMaintenance %ld (%d / %s) in %s, %g days old marked for deletion\n", pFolderMessage->GetID(), pFolderMessage->GetType(), pFolderMessage->GetSubject() != NULL ? pFolderMessage->GetSubject()->Data(false) : NULL, pFolder->GetName(), iAge / 86400.0);
 
+			   pFolderMessage->SetArchived(true);
                // Add to archive table, delete from current table
                // pFolderMessage->Insert(FM_ARCHIVE_TABLE);
                // pFolderMessage->Delete((char *)NULL);
@@ -2960,6 +2961,11 @@ ICELIBFN bool MessageThread(EDFConn *pConn, EDF *pData, EDF *pIn, EDF *pOut)
    {
       pOut->AddChild("folderid", pFolder1->GetID());
       pOut->AddChild("foldername", pFolder1->GetName());
+   }
+   else if(pFolderMessage != NULL)
+   {
+      pOut->AddChild("folderid", pFolderMessage->GetTree()->GetID());
+	  pOut->AddChild("foldername", pFolderMessage->GetTree()->GetName());
    }
 
    if(iType == 0)
