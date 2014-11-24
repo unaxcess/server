@@ -29,25 +29,13 @@ class UA2Server < FPM::Cookery::Recipe
 
     def install
 
-        mkdir_p etc('ua2')
-        mkdir_p var('log/ua2')
-        mkdir_p var('lib/ua2')
-        mkdir_p root('usr/libexec')
-	mkdir_p sbin()
-        mkdir_p etc('init.d')
-        mkdir_p etc('logrotate.d')
-
-	cp "#{workdir}/bin/ICE",         sbin("ICE")
-	cp "#{workdir}/bin/MessageSpec", sbin("MessageSpec")
-	cp "#{workdir}/bin/ua",          sbin("ua")
-
-	cp "#{workdir}/bin/libua",       root("usr/libexec/libua")
-
-	cp "#{workdir}/bin/ua.edf",	 etc("ua2/ua.edf")
-	cp "#{workdir}/bin/uadata.edf",  var("lib/ua2/uadata.edf")
-
-        cp "#{workdir}/dist/init",       etc("init.d/ua2")
-        cp "#{workdir}/dist/logrotate",  etc("logrotate.d/ua2")
+        sbin.install "#{workdir}/bin/ICE"
+        bin.install [ "#{workdir}/bin/MessageSpec", "#{workdir}/bin/ua" ]
+        root('usr/libexec').install "#{workdir}/bin/libua"
+        etc('ua2').install "#{workdir}/bin/ua.edf"
+        var('lib/ua2').install "#{workdir}/bin/uadata.edf"
+        etc('init.d').install "#{workdir}/dist/init"
+        etc('logrotate.d').install "#{workdir}/dist/logrotate"
 
     end
 
