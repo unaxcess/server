@@ -7,6 +7,9 @@ class UAServer < FPM::Cookery::Recipe
     vendor      'fpm'
     revision    0
 
+    config_files '/var/lib/ua2/uadata.edf', 
+                 '/etc/ua2/ua.edf'
+
     if ENV.has_key?('PKG_VERSION')
         version ENV['PKG_VERSION']
     else
@@ -34,7 +37,10 @@ class UAServer < FPM::Cookery::Recipe
 	cp "#{workdir}/bin/MessageSpec", sbin("MessageSpec")
 	cp "#{workdir}/bin/ua",          sbin("ua")
 
-	cp "#{workdir}/bin/libua",           root("usr/libexec/libua")
+	cp "#{workdir}/bin/libua",       root("usr/libexec/libua")
+
+	cp "#{workdir}/bin/ua.edf",	 etc("ua2/ua.edf")
+	cp "#{workdir}/bin/uadata.edf",  var("lib/ua2/uadata.edf")
 
     end
 
