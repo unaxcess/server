@@ -1,0 +1,8 @@
+/var/log/ua2/*.log {
+        notifempty
+        daily
+        rotate 5
+        missingok
+        compress
+        copytruncate
+}

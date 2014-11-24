@@ -1,0 +1,9 @@
+#!/bin/bash
+
+/usr/sbin/groupadd -r ua2 2>/dev/null
+/usr/sbin/useradd -d /var/lib/ua2 -s /sbin/nologin -M -r -g ua2 ua2 2>/dev/null
+
+/usr/bin/install -d -o ua2 -g ua2 -m 0755 /var/lib/ua2
+/usr/bin/install -d -o ua2 -g ua2 -m 0755 /var/log/ua2
+
+/sbin/chkconfig --add ua2

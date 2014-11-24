@@ -1,7 +1,7 @@
-class UAServer < FPM::Cookery::Recipe
+class UA2Server < FPM::Cookery::Recipe
 
     source      'nothing', :with => :noop
-    name        'ua-server'
+    name        'ua2-server'
     description 'UA Server'
     maintainer  'Jon Topper <jon@scalefactory.com>'
     vendor      'fpm'
@@ -9,6 +9,8 @@ class UAServer < FPM::Cookery::Recipe
 
     config_files '/var/lib/ua2/uadata.edf', 
                  '/etc/ua2/ua.edf'
+    
+    post_install "dist/post-install"
 
     if ENV.has_key?('PKG_VERSION')
         version ENV['PKG_VERSION']
@@ -32,6 +34,8 @@ class UAServer < FPM::Cookery::Recipe
         mkdir_p var('lib/ua2')
         mkdir_p root('usr/libexec')
 	mkdir_p sbin()
+        mkdir_p etc('init.d')
+        mkdir_p etc('logrotate.d')
 
 	cp "#{workdir}/bin/ICE",         sbin("ICE")
 	cp "#{workdir}/bin/MessageSpec", sbin("MessageSpec")
@@ -41,6 +45,9 @@ class UAServer < FPM::Cookery::Recipe
 
 	cp "#{workdir}/bin/ua.edf",	 etc("ua2/ua.edf")
 	cp "#{workdir}/bin/uadata.edf",  var("lib/ua2/uadata.edf")
+
+        cp "#{workdir}/dist/init",       etc("init.d/ua2")
+        cp "#{workdir}/dist/logrotate",  etc("logrotate.d/ua2")
 
     end
 
