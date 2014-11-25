@@ -12,6 +12,8 @@ class UA2Server < FPM::Cookery::Recipe
     
     post_install "dist/post-install"
 
+    depends 'daemonize'
+
     if ENV.has_key?('PKG_VERSION')
         version ENV['PKG_VERSION']
     else
