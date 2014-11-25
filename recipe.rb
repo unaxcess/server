@@ -34,8 +34,11 @@ class UA2Server < FPM::Cookery::Recipe
         root('usr/libexec').install "#{workdir}/bin/libua"
         etc('ua2').install "#{workdir}/bin/ua.edf"
         var('lib/ua2').install "#{workdir}/bin/uadata.edf"
-        etc('init.d').install "#{workdir}/dist/init"
-        etc('logrotate.d').install "#{workdir}/dist/logrotate"
+
+	mkdir_p etc('init.d')
+	mkdir_p etc('logrotate.d')
+	cp "#{workdir}/dist/init", etc("init.d/ua2-server")
+	cp "#{workdir}/dist/logrotate", etc("logrotate.d/ua2-server")
 
     end
 
