@@ -5,7 +5,7 @@ class UA2Server < FPM::Cookery::Recipe
     description 'UA Server'
     maintainer  'Jon Topper <jon@scalefactory.com>'
     vendor      'fpm'
-    revision    0
+    version     '2.9-beta2'
 
     config_files '/var/lib/ua2/uadata.edf', 
                  '/etc/ua2/ua.edf'
@@ -14,10 +14,10 @@ class UA2Server < FPM::Cookery::Recipe
 
     depends 'daemonize'
 
-    if ENV.has_key?('PKG_VERSION')
-        version ENV['PKG_VERSION']
+    if ENV.has_key?('PKG_REVISION')
+        revision ENV['PKG_REVISION']
     else
-        raise 'No PKG_VERSION passed in the environment'
+        raise 'No PKG_REVISION passed in the environment'
     end
 
     def build
