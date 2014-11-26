@@ -75,7 +75,7 @@ arch=`uname`
 echo "CC=g++"
 echo "CCSECURE=-DCONNSECURE -I\$(SSLINC)"
 echo "INCCCFLAGS=-g -Wall -O2 -DUNIX -D$arch -DSTACKTRACEON -I.."
-echo "CCFLAGS=\$(INCCCFLAGS) \$(CCSECURE)"
+echo "CCFLAGS=\$(INCCCFLAGS) \$(CCSECURE) -Wno-write-strings"
 echo ""
 
 echo "LD=g++"

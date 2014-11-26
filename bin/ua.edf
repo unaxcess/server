@@ -1,12 +1,12 @@
 <>
-  <library="./libua"/>
+  <library="/usr/libexec/libua"/>
   <port=4040/>
   <secure=1/>
-  <certificate="ua.pem"/>
+  <certificate="/etc/ua2/ua.pem"/>
   <timeout=4000/>
   <inputsize=50000/>
   <buffersize=500000/>
-  <data="uadata.edf"/>
+  <data="/var/lib/ua2/uadata.edf"/>
   <request="bulletin_add">
     <function="MessageAdd"/>
     <scope=4/>

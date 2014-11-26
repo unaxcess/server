@@ -210,7 +210,7 @@ void ConnCertify(SSL *pSSL)
    char szBuffer[BUFFER_SIZE];
    STACK_OF(X509) *pStack = NULL;
    STACK_OF(X509_NAME) *pStackName = NULL;
-   SSL_CIPHER *pCipher = NULL;
+   const SSL_CIPHER *pCipher = NULL;
    SSL_SESSION *pSession = NULL;
    X509 *pPeer = NULL;
    X509_NAME *pName = NULL;
