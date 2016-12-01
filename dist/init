@@ -14,11 +14,14 @@
 # Source networking configuration.
 [ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
 
+[ -f /etc/sysconfig/ua2-server ] && . /etc/sysconfig/ua2-server
+
 PID_FILE=/var/run/ua2.pid
+log_file=${LOG_FILE-/var/log/ua2/ICE.stdout.log}
 
 start() {
     echo -n "Starting ua2: "
-    daemonize -p ${PID_FILE} -u ua2 -c /var/lib/ua2 -o /var/log/ua2/ICE.stdout.log -- /usr/sbin/ICE -config /etc/ua2/ua.edf
+    daemonize -p ${PID_FILE} -u ua2 -c /var/lib/ua2 -o ${log_file} -- /usr/sbin/ICE -config /etc/ua2/ua.edf
     RETVAL=$?
     if [ $RETVAL -ne 0 ] ; then
         failure
