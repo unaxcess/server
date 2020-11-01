@@ -1,0 +1,8 @@
+<>
+  <system>
+    <database="ua27live"/>
+    <dbuser="$DB_USER"/>
+    <dbpassword="$DB_PASS"/>
+    <dbhost="$DB_HOST"/>
+  </system>
+</>
