@@ -44,7 +44,7 @@ bool DBConnect(char *szDatabase, char *szUsername, char *szPassword, char *szHos
    bool bReturn = false;
    MYSQL *retcode = NULL;
 
-   debug("DBConnect entry %s %s %s\n", szDatabase, szUsername, szPassword);
+   debug("DBConnect entry %s %s %s %s\n", szDatabase, szUsername, szPassword, szHostname);
    g_hSQL = mysql_init(NULL);
    if(DBCheck("DBConect init", g_hSQL != NULL) == true)
    {

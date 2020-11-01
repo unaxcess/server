@@ -2216,7 +2216,7 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    int iAttempts = 0, iTemp = 0, iChannelID = 0;
    bool bConnect = false, bLoop = false;
    double dTick = gettick(), dAttach = 0, dReset = 0;
-   char *szDatabase = NULL, *szDBUser1 = NULL, *szDBPassword1 = NULL, *szDBUser2 = NULL, *szDBPassword2 = NULL;
+   char *szDatabase = NULL, *szDBUser1 = NULL, *szDBPassword1 = NULL, *szDBUser2 = NULL, *szDBPassword2 = NULL, *szDBHost1 = NULL, *szDBHost2;
    EDF *pAnnounce = NULL;
    EDFElement *pTemp = NULL;
    EDFConn *pListConn = NULL;
@@ -2249,6 +2249,8 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    pData->GetChild("database", &szDatabase);
    pData->GetChild("dbuser", &szDBUser1);
    pData->GetChild("dbpassword", &szDBPassword1);
+   pData->GetChild("dbhost", &szDBHost1);
+
    if(szDatabase == NULL)
    {
       debug("ServerLoad no database connection\n");
@@ -2262,6 +2264,7 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    {
       szDBUser2 = szDBUser1;
    }
+
    if(szDBPassword1 != NULL && szDBPassword1[0] == '$')
    {
       szDBPassword2 = getenv(szDBPassword1 + 1);
@@ -2270,8 +2273,19 @@ ICELIBFN bool ServerLoad(EDF *pData, long lMilliseconds, int iOptions)
    {
       szDBPassword2 = szDBPassword1;
    }
+
+   if(szDBHost1 != NULL && szDBHost1[0] == '$')
+   {
+      szDBHost2 = getenv(szDBHost1 + 1);
+   }
+   else
+   {
+      szDBHost2 = szDBHost1;
+   }
+
+
    // DBTable::Debug(true);
-   bConnect = DBTable::Connect(szDatabase, szDBUser2, szDBPassword2);
+   bConnect = DBTable::Connect(szDatabase, szDBUser2, szDBPassword2, szDBHost2);
    // DBTable::Debug(false);
    delete[] szDatabase;
    delete[] szDBUser1;
