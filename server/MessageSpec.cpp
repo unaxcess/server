@@ -2547,7 +2547,7 @@ int main(int argc, char **argv)
    EDF *pData = NULL;
 
 #ifdef UNIX
-   for(int i = SIGHUP; i < SIGUNUSED; i++)
+   for(int i = SIGHUP; i < SIGSYS; i++)
    {
       if(i != SIGKILL && i != SIGSTOP)
       {
