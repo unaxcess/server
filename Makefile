@@ -13,3 +13,6 @@ clean:
 
 install:
 		cd server ; make install
+
+container:
+		docker build --file Dockerfile.build . -t unaxcess/server:latest 
