@@ -11,7 +11,7 @@ SSLLIB=/usr/local/ssl/lib
 
 CC=g++
 CCSECURE=-DCONNSECURE -I$(SSLINC)
-INCCCFLAGS=-g -Wall -O2 -DUNIX -DLinux -DSTACKTRACEON -I..
+INCCCFLAGS=-g -w -Wfatal-errors -O2 -DUNIX -DLinux -DSTACKTRACEON -I..
 CCFLAGS=$(INCCCFLAGS) $(CCSECURE) -Wno-write-strings
 
 LD=g++
