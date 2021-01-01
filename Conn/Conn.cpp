@@ -146,10 +146,10 @@ int ConnVerify(int iOK, X509_STORE_CTX *pContext)
       }
    }
 
-   switch(pContext->error)
+   switch(X509_STORE_CTX_get_error(pContext))
    {
       case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-         X509_NAME_oneline(X509_get_issuer_name(pContext->current_cert), szBuffer, sizeof(szBuffer));
+         X509_NAME_oneline(X509_get_issuer_name(pCert), szBuffer, sizeof(szBuffer));
          debug("ConnVerify cannot get issuer = %s\n", szBuffer);
          break;
 
@@ -241,13 +241,15 @@ void ConnCertify(SSL *pSSL)
          debug("ConnCertify peer certificate:\n");
 
          // debug("   peer %s\n", pPeer);
-
+/* doesn't build on 1.1
          debug("  c = ");
-         for(iCharPos = 0; iCharPos < pPeer->cert_info->key->public_key->length; iCharPos++)
+         //for(iCharPos = 0; iCharPos < pPeer->cert_info->key->public_key->length; iCharPos++)
+         for(iCharPos = 0; iCharPos < EVP_PKEY_size(X509_get_pubkey(pPeer)); iCharPos++)
          {
             debug("[%d]", pPeer->cert_info->key->public_key->data[iCharPos]);
          }
          debug("\n");
+*/
 
          X509_NAME_oneline(X509_get_subject_name(pPeer), szBuffer, BUFFER_SIZE);
          debug("  s = %s\n", szBuffer);
@@ -299,17 +301,26 @@ void ConnCertify(SSL *pSSL)
    pCipher = SSL_get_current_cipher(pSSL);
    // if(pCipher != NULL)
    {
-      debug("ConnCertify cypher %s, name = %s, version = %s\n", pSSL->hit ? "Reused" : "New", SSL_CIPHER_get_name(pCipher), SSL_CIPHER_get_version(pCipher));
+      debug("ConnCertify cypher %s, name = %s, version = %s\n", SSL_session_reused(pSSL) ? "Reused" : "New", SSL_CIPHER_get_name(pCipher), SSL_CIPHER_get_version(pCipher));
    }
 
-   pSession = pSSL->session;
+   pSession = SSL_get_session(pSSL);
+/*   
    if(pSession != NULL)
    {
-      ConnCertifyData("Session ID", pSession->session_id, pSession->session_id_length);
-      ConnCertifyData("SID context", pSession->sid_ctx, pSession->sid_ctx_length);
-      ConnCertifyData("Master key", pSession->master_key, pSession->master_key_length);
-   }
+      const unsigned char *certifydata;
+      unsigned int certifydatalen;
 
+      certifydata = SSL_SESSION_get_id(pSession, &certifydatalen);
+      ConnCertifyData("Session ID", certifydata, certifydatalen);
+
+      certifydata = SSL_SESSION_get0_id_context(pSession, &certifydatalen);
+      ConnCertifyData("SID context", certifydata, certifydatalen);
+
+//      certifydata = SSL_SESSION_get_master_key(pSession, &certifydatalen)
+//      ConnCertifyData("Master key", pSession->master_key, pSession->master_key_length);
+   }
+*/
    debug("ConnCertify exit\n");
 }
 #endif
