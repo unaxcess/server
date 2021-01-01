@@ -12,7 +12,7 @@ yum -y install    \
     libffi-devel  \
     zlib-devel \
     make \
-    logrotate
+    nc
 
 dos2unix configure.sh
 ./configure.sh
